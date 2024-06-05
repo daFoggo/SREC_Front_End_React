@@ -5,7 +5,7 @@ const Login = () => {
             <div className='flex flex-col sm:w-full h-full text-left p-5 sm:p-20'>
                 <div className="flex flex-col">
                     <h1 className='text-3xl font-bold'>Login</h1>
-                    <p className='mt-2 text-sm'>Don&apos;t have an account? <a href="" className="font-bold underline">Sign Up</a></p>
+                    <p className='mt-2 text-sm'>Don&apos;t have an account? <a href="/register" className="font-bold underline">Sign Up</a></p>
                 </div>
 
                 <div className="mt-24 flex flex-col gap-5">

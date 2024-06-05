@@ -13,4 +13,8 @@
     .labelAndInput{
         @apply flex flex-col gap-1;
     }
+
+    .input{
+        @apply w-full px-3 py-2 border rounded-md outline-none focus:border-blue-500 focus:border-2;
+    }
 }
