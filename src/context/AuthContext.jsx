@@ -13,16 +13,30 @@ export const AuthProvider = ({ children }) => {
 
     useEffect(() => {
         if (token) {
-            const decodedUser = JSON.parse(atob(token.split(".")[1]));
-            setUser(decodedUser);
+            try {
+                const decodedUser = JSON.parse(atob(token.split(".")[1]));
+                setUser(decodedUser);
+            } catch (error) {
+                console.error("Failed to decode token:", error);
+                setToken(null);
+                setUser(null);
+                localStorage.removeItem("token");
+            }
         }
     }, [token]);
 
     const saveToken = (userToken) => {
         setToken(userToken);
         localStorage.setItem("token", userToken);
-        const decodedUser = JSON.parse(atob(userToken.split(".")[1]));
-        setUser(decodedUser);
+        try {
+            const decodedUser = JSON.parse(atob(userToken.split(".")[1]));
+            setUser(decodedUser);
+        } catch (error) {
+            console.error("Failed to decode token:", error);
+            setToken(null);
+            setUser(null);
+            localStorage.removeItem("token");
+        }
     }
 
     const logout = () => {

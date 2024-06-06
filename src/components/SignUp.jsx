@@ -1,25 +1,43 @@
 import { useState } from "react";
 import axios from "axios";
 import { rootAPI } from "../utils/ip";
+import { useNavigate } from "react-router-dom";
+
 
 const SignUp = () => {
+    const navigate = useNavigate();
+
     const [first_name, setFirstName] = useState("");
     const [last_name, setLastName] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [confirm_password, setConfirmPassword] = useState("");
     const [msg, setMsg] = useState("");
 
     const handleRegister = async () => {
+        if (!first_name || !last_name || !email || !password || !confirm_password) {
+            setMsg("Please fill all the fields");
+            return;
+        } else if (password !== confirm_password) {
+            setMsg("Passwords do not match");
+            return;
+        }
+
         try {
-            const response = await axios.post(`${rootAPI}/register`, {
+            await axios.post(`${rootAPI}/register`, {
                 first_name,
                 last_name,
                 email,
                 password,
+                confirm_password,
             });
-            localStorage.setItem("token", response.data.token);
+            
+            setMsg("");
+            navigate("/login");
+
         } catch (error) {
             setMsg(error.response.data.msg);
+            console.log(error.response.data.msg);
         }
     };
 
@@ -115,17 +133,17 @@ const SignUp = () => {
                             placeholder="Confirm Password"
                             id="confirmPassword"
                             className="input"
-                            onChange={(e) => setPassword(e.target.value)}
+                            onChange={(e) => setConfirmPassword(e.target.value)}
                         />
                     </div>
 
-                    <button className="w-2/5 bg-primary hover:bg-hoverPrimary text-white  py-2 sm:py-3 rounded-md cursor-pointer" onClick={handleRegister}>
+                    {msg && <p className="text-red-500">{msg}</p>}
+
+                    <button className="w-2/5 bg-primary hover:bg-hoverPrimary text-white py-2 sm:py-3 rounded-md cursor-pointer" onClick={handleRegister}>
                         Sign Up
                     </button>
                 </div>
             </div>
-            
-            {msg && <p>{msg}</p>}
         </div>
     );
 };
