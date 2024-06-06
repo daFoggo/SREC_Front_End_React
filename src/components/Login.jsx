@@ -1,10 +1,13 @@
-import { useState } from "react";
+import { useState} from "react";
 import axios from "axios";
 import { rootAPI } from "../utils/ip";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 
+import ImageCarousel from "./ImageCarousel";
+
 const Login = () => {
+
     const navigate = useNavigate();
 
     const { saveToken } = useAuth();
@@ -42,10 +45,7 @@ const Login = () => {
                     <h1 className="text-3xl font-bold">Login</h1>
                     <p className="mt-2 text-sm">
                         Don&apos;t have an account?{" "}
-                        <a
-                            href="/register"
-                            className="font-bold underline"
-                        >
+                        <a href="/register" className="font-bold underline">
                             Sign Up
                         </a>
                     </p>
@@ -80,15 +80,18 @@ const Login = () => {
 
                     {msg && <p className="text-red-500 text-sm">{msg}</p>}
 
-                    <button className="self-end w-1/5 bg-primary hover:bg-hoverPrimary text-white  py-2 sm:py-3 rounded-md">
-                        <h1 className="text-md font-bold"  onClick={handleLogin}>Login</h1>
+                    <button className="self-end w-1/5 bg-primary500 hover:bg-primary600 text-white  py-2 sm:py-3 rounded-md">
+                        <h1 className="text-md font-bold" onClick={handleLogin}>
+                            Login
+                        </h1>
                     </button>
                 </div>
             </div>
 
-            <div className="hidden sm:flex flex-col w-3/5 bg-primary rounded-xl text-white py-20 px-14">
+            <div className="hidden sm:flex flex-col justify-between w-3/5 bg-primary500 rounded-xl text-white py-20 px-14">
                 <h1 className="text-2xl font-bold self-start text-left">SREC</h1>
-                <div className="mt-52">
+
+                <div>
                     <h1 className="text-3xl font-bold">
                         Welcome back! <br />
                         Let&apos;s make a new recruitment
@@ -99,6 +102,9 @@ const Login = () => {
                         hard and soft skills.
                     </p>
                 </div>
+
+                <ImageCarousel></ImageCarousel>
+
             </div>
         </div>
     );

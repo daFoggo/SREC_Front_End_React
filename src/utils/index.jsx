@@ -1,0 +1,1 @@
+export const steve_quang = "/assets/images/user_rating/steve_quang.png"
