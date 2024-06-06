@@ -3,22 +3,21 @@ import axios from "axios";
 import { rootAPI } from "../utils/ip";
 
 const SignUp = () => {
-    const [firstName, setFirstName] = useState("");
-    const [lastName, setLastName] = useState("");
+    const [first_name, setFirstName] = useState("");
+    const [last_name, setLastName] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [msg, setMsg] = useState("");
-    const [token, setToken] = useState(localStorage.getItem("token") || "");
 
     const handleRegister = async () => {
         try {
             const response = await axios.post(`${rootAPI}/register`, {
-                firstName,
-                lastName,
+                first_name,
+                last_name,
                 email,
                 password,
             });
-            setMsg(response.data.message);
+            localStorage.setItem("token", response.data.token);
         } catch (error) {
             setMsg(error.response.data.msg);
         }
@@ -120,11 +119,13 @@ const SignUp = () => {
                         />
                     </div>
 
-                    <button className="w-2/5 bg-primary hover:bg-hoverPrimary text-white  py-2 sm:py-3 rounded-md" onClick={handleRegister}>
+                    <button className="w-2/5 bg-primary hover:bg-hoverPrimary text-white  py-2 sm:py-3 rounded-md cursor-pointer" onClick={handleRegister}>
                         Sign Up
                     </button>
                 </div>
             </div>
+            
+            {msg && <p>{msg}</p>}
         </div>
     );
 };
