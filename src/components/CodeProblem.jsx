@@ -1,6 +1,6 @@
 const CodeProblem = () => {
   return (
-    <div>CodeProblem</div>
+    <div>Nếu có thể thấy tức là đã có token</div>
   )
 }
 

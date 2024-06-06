@@ -2,7 +2,7 @@ const routes = {
     home: '/',
     login: '/login',
     register: '/register',
-    codeProblem: '/codeProblem'
+    codeProblem: '/code-problem'
 }
 
 export default routes;

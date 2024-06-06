@@ -3,7 +3,6 @@ import axios from "axios";
 import { rootAPI } from "../utils/ip";
 import { useNavigate } from "react-router-dom";
 
-
 const SignUp = () => {
     const navigate = useNavigate();
 
@@ -31,10 +30,9 @@ const SignUp = () => {
                 password,
                 confirm_password,
             });
-            
+
             setMsg("");
             navigate("/login");
-
         } catch (error) {
             setMsg(error.response.data.msg);
             console.log(error.response.data.msg);
@@ -139,7 +137,10 @@ const SignUp = () => {
 
                     {msg && <p className="text-red-500">{msg}</p>}
 
-                    <button className="w-2/5 bg-primary hover:bg-hoverPrimary text-white py-2 sm:py-3 rounded-md cursor-pointer" onClick={handleRegister}>
+                    <button
+                        className="w-2/5 bg-primary hover:bg-hoverPrimary text-white py-2 sm:py-3 rounded-md cursor-pointer"
+                        onClick={handleRegister}
+                    >
                         Sign Up
                     </button>
                 </div>
