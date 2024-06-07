@@ -9,6 +9,7 @@ const SignUp = () => {
 
   const [first_name, setFirstName] = useState("");
   const [last_name, setLastName] = useState("");
+  const [role, setRole] = useState("candidate");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirm_password, setConfirmPassword] = useState("");
@@ -27,6 +28,7 @@ const SignUp = () => {
       await axios.post(`${rootAPI}/register`, {
         first_name,
         last_name,
+        role,
         email,
         password,
         confirm_password,
@@ -79,7 +81,7 @@ const SignUp = () => {
                 type="text"
                 placeholder="First Name"
                 id="name"
-                className="w-full px-3 py-2 border rounded-md outline-none focus:border-blue-500 focus:border-2"
+                className="input"
                 onChange={(e) => setFirstName(e.target.value)}
               />
             </div>
@@ -92,10 +94,20 @@ const SignUp = () => {
                 type="text"
                 placeholder="Last Name"
                 id="lastName"
-                className="w-full px-3 py-2 border rounded-md outline-none focus:border-blue-500 focus:border-2"
+                className="input"
                 onChange={(e) => setLastName(e.target.value)}
               />
             </div>
+          </div>
+
+          <div className="labelAndInput">
+            <label htmlFor="email" className="">
+              Who are you?
+            </label>
+            <select name="" id="" className="input" onChange={(e) => setRole(e.target.value)}>
+              <option value="candidate">Candidate</option>
+              <option value="recruiter">Recruiter</option>
+            </select>
           </div>
 
           <div className="labelAndInput">

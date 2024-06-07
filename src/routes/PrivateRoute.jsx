@@ -2,14 +2,23 @@ import { Navigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext'; 
 import PropTypes from 'prop-types';
 
-const PrivateRoute = ({ children }) => {
-    const { user } = useAuth();
+const PrivateRoute = ({ children, requiredRole }) => {
+    const { user, role } = useAuth();
 
-    return user ? children : <Navigate to="/login" />;
+    if (!user) {
+        return <Navigate to="/login" />;
+    } 
+
+    if (requiredRole && role !== requiredRole) {
+        return <Navigate to="/forbidden" />;
+    } else {
+        return children;
+    }
 }
 
-export default PrivateRoute;
-
 PrivateRoute.propTypes = {
-    children: PropTypes.node.isRequired
+    children: PropTypes.node.isRequired,
+    requiredRole: PropTypes.string
 };
+
+export default PrivateRoute;

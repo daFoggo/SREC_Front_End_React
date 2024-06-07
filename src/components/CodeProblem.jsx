@@ -1,6 +1,6 @@
 const CodeProblem = () => {
   return (
-    <div>Nếu có thể thấy tức là đã có token</div>
+    <div>Nếu thấy tức là đã có token và có role candidate</div>
   )
 }
 

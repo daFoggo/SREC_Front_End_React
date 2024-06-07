@@ -1,4 +1,4 @@
-import { useState} from "react";
+import { useState } from "react";
 import axios from "axios";
 import { rootAPI } from "../utils/ip";
 import { useAuth } from "../context/AuthContext";
@@ -7,16 +7,17 @@ import { useNavigate } from "react-router-dom";
 import ImageCarousel from "./ImageCarousel";
 
 const Login = () => {
-
     const navigate = useNavigate();
 
-    const { saveToken } = useAuth();
+    const { saveTokenAndUserData, role } = useAuth();
 
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [msg, setMsg] = useState("");
 
-    const handleLogin = async () => {
+    const handleLogin = async (e) => {
+        e.preventDefault();
+
         if (!email || !password) {
             setMsg("Please fill in all fields");
             return;
@@ -26,11 +27,17 @@ const Login = () => {
                     email,
                     password,
                 });
+
                 const token = response.data.access_token;
-                saveToken(token);
+                saveTokenAndUserData(token);
                 setMsg("");
 
-                navigate("/code-problem");
+                if (role === "candidate") {
+                    navigate("/code-problem");
+                } else if (role === "recruiter") {
+                    navigate("/cv-matching");
+                }
+
             } catch (error) {
                 setMsg(error.response.data.msg);
                 console.log(error.response.data.msg);
@@ -60,7 +67,7 @@ const Login = () => {
                             type="text"
                             placeholder="Email"
                             id="email"
-                            className="w-full px-3 py-2 border rounded-md outline-none focus:border-blue-500 focus:border-2"
+                            className="input"
                             onChange={(e) => setEmail(e.target.value)}
                         />
                     </div>
@@ -73,7 +80,7 @@ const Login = () => {
                             type="password"
                             placeholder="Password"
                             id="password"
-                            className="w-full px-3 py-2 border rounded-md outline-none focus:border-blue-500 focus:border-2"
+                            className="input"
                             onChange={(e) => setPassword(e.target.value)}
                         />
                     </div>

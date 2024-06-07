@@ -17,7 +17,7 @@ const ImageCarousel = () => {
         const interval = setInterval(() => {
             const nextIndex = (currentIndex + 1) % user_rating.length;
             handleClick(nextIndex);
-        }, 3000);
+        }, 5000);
 
         return () => clearInterval(interval);
     }, [currentIndex]);

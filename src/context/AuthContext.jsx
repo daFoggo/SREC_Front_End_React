@@ -1,5 +1,6 @@
 import { createContext, useState, useContext, useEffect } from "react";
 import propTypes from "prop-types";
+import { jwtDecode } from 'jwt-decode';
 
 export const AuthContext = createContext();
 
@@ -10,43 +11,51 @@ export const useAuth = () => {
 export const AuthProvider = ({ children }) => {
     const [token, setToken] = useState(() => localStorage.getItem("token"));
     const [user, setUser] = useState(null);
+    const [role, setRole] = useState(null);
 
-    useEffect(() => {
-        if (token) {
-            try {
-                const decodedUser = JSON.parse(atob(token.split(".")[1]));
-                setUser(decodedUser);
-            } catch (error) {
-                console.error("Failed to decode token:", error);
-                setToken(null);
-                setUser(null);
-                localStorage.removeItem("token");
-            }
-        }
-    }, [token]);
-
-    const saveToken = (userToken) => {
-        setToken(userToken);
-        localStorage.setItem("token", userToken);
-        try {
-            const decodedUser = JSON.parse(atob(userToken.split(".")[1]));
-            setUser(decodedUser);
-        } catch (error) {
-            console.error("Failed to decode token:", error);
-            setToken(null);
-            setUser(null);
-            localStorage.removeItem("token");
-        }
-    }
-
-    const logout = () => {
+    const clearUserData = () => {
         setToken(null);
         setUser(null);
+        setRole(null);
         localStorage.removeItem("token");
     }
 
+    const saveTokenAndUserData = (userToken) => {
+        setToken(userToken);
+        localStorage.setItem("token", userToken);
+
+        try {
+            const decodedUser = jwtDecode(userToken);
+            setUser(decodedUser);
+            setRole(decodedUser.sub.role);
+        } catch (error) {
+            handleTokenError(error);
+        }
+    }
+
+    const handleTokenError = (error) => {
+        console.error("Failed to decode token:", error);
+        clearUserData();
+    }
+
+    const logout = () => {
+        clearUserData();
+    }
+
+    useEffect(() => {
+        try {
+            const decodedUser = jwtDecode(token);
+            setUser(decodedUser);
+            setRole(decodedUser.sub.role); 
+        } catch (error) {
+            handleTokenError(error);
+        }
+
+        console.log(role)
+    }, [token]);
+
     return (
-        <AuthContext.Provider value={{ token, user, saveToken, logout }}>
+        <AuthContext.Provider value={{ token, user, role, saveTokenAndUserData: saveTokenAndUserData, logout }}>
             {children}
         </AuthContext.Provider>
     )

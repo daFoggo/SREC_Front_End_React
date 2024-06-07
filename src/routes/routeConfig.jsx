@@ -2,7 +2,9 @@ const routes = {
     home: '/',
     login: '/login',
     register: '/register',
-    codeProblem: '/code-problem'
+    code_problem: '/code-problem',
+    cv_matching: '/cv-matching',
+    forbidden: '/forbidden',
 }
 
 export default routes;
