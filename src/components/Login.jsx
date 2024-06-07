@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
 import { rootAPI } from "../utils/ip";
 import { useAuth } from "../context/AuthContext";
@@ -31,19 +31,20 @@ const Login = () => {
                 const token = response.data.access_token;
                 saveTokenAndUserData(token);
                 setMsg("");
-
-                if (role === "candidate") {
-                    navigate("/code-problem");
-                } else if (role === "recruiter") {
-                    navigate("/cv-matching");
-                }
-
             } catch (error) {
                 setMsg(error.response.data.msg);
                 console.log(error.response.data.msg);
             }
         }
     };
+
+    useEffect(() => {
+        if (role === "candidate") {
+            navigate("/code-problem");
+        } else if (role === "recruiter") {
+            navigate("/cv-matching");
+        }
+    }, [role]);
 
     return (
         <div className="flex flex-col sm:flex-row w-full h-[100vh] rounded-xl bg-white p-3 font-spaceGrotesk">
