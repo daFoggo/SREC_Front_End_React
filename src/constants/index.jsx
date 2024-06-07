@@ -1,4 +1,5 @@
 import { steve_quang } from "../utils";
+
 export const user_rating = [
     {
         id: 1,
@@ -22,3 +23,6 @@ export const user_rating = [
         comment: `Chúng tôi sử dụng công nghệ GPT (AI Model), cũng là công nghệ được ChatGPT sử dụng. Bằng cách này, phần mềm chặn Spam có khả năng "HIỂU" được nội dung văn bản, giống như bạn đọc vài câu là biết ngay email hay tin nhắn là Spam. Nhờ đó mà hiệu quả chặn Spam vượt trội, so với cách làm truyền thống dựa vào các từ đơn lẻ", bác Quảng khẳng định`,
     },
 ];
+
+export const navLists = [ 
+]

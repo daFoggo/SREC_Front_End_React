@@ -17,4 +17,8 @@
     .input{
         @apply w-full px-3 py-2 border rounded-md outline-none focus:border-blue-500 focus:shadow-sm;
     }
+
+    .iconAndText{
+        @apply flex items-center gap-2;
+    }
 }

@@ -50,8 +50,6 @@ export const AuthProvider = ({ children }) => {
         } catch (error) {
             handleTokenError(error);
         }
-
-        console.log(role)
     }, [token]);
 
     return (

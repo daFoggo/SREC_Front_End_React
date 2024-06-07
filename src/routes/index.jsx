@@ -1,5 +1,5 @@
 import { Routes, Route, useLocation } from 'react-router-dom';
-import { Helmet } from 'react-helmet';
+import { Helmet, HelmetProvider } from 'react-helmet-async';
 import routes from './routeConfig';
 
 import Login from '../components/Login';
@@ -8,6 +8,7 @@ import CVMatching from '../components/CVMatching.jsx';
 import CodeProblem from '../components/CodeProblem';
 import PrivateRoute from './PrivateRoute';
 import Forbidden from '../components/Forbidden';
+import Layout from '../components/Layout.jsx';
 
 const AppRoutes = () => {
     const location = useLocation();
@@ -33,33 +34,36 @@ const AppRoutes = () => {
 
     return (
         <div>
-            <Helmet>
-                <title>{currentTitle}</title>
-            </Helmet>
+            <HelmetProvider>
+                <Helmet>
+                    <title>{currentTitle}</title>
+                </Helmet>
+            </HelmetProvider>
+
             <Routes>
                 <Route path={routes.login} element={<Login />} />
-
                 <Route path={routes.register} element={<SignUp />} />
-
-                <Route
-                    path={routes.code_problem}
-                    element={
-                        <PrivateRoute requiredRole="candidate">
-                            <CodeProblem />
-                        </PrivateRoute>
-                    }
-                />
-
-                <Route
-                    path={routes.cv_matching}
-                    element={
-                        <PrivateRoute requiredRole="recruiter">
-                            <CVMatching />
-                        </PrivateRoute>
-                    }
-                />
-
                 <Route path={routes.forbidden} element={<Forbidden />} />
+
+                <Route element={<Layout />}>
+                    <Route
+                        path={routes.code_problem}
+                        element={
+                            <PrivateRoute requiredRole="candidate">
+                                <CodeProblem />
+                            </PrivateRoute>
+                        }
+                    />
+
+                    <Route
+                        path={routes.cv_matching}
+                        element={
+                            <PrivateRoute requiredRole="recruiter">
+                                <CVMatching />
+                            </PrivateRoute>
+                        }
+                    />
+                </Route>
             </Routes>
         </div>
     );
