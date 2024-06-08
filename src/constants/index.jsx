@@ -24,5 +24,32 @@ export const user_rating = [
     },
 ];
 
-export const navLists = [ 
+export const navLists = [
+    {
+        id: 1,
+        title: "About Us",
+    },
+    {
+        id: 2,
+        title: "Services",
+    },
+    {
+        id: 3,
+        title: "Jobs",
+    },
+];
+
+export const userDropdown = [
+    {
+        id: 1,
+        title: "Profile",
+    },
+    {
+        id: 2,
+        title: "Settings",
+    },
+    {
+        id: 3,
+        title: "Logout",
+    },
 ]

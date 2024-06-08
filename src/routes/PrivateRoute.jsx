@@ -6,7 +6,7 @@ const PrivateRoute = ({ children, requiredRole }) => {
     const { user, role } = useAuth();
 
     if (!user) {
-        return <Navigate to="/login" />;
+        return <Navigate to="/forbidden" />;
     } 
 
     if (requiredRole && role !== requiredRole) {

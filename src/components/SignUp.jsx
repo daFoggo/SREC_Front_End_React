@@ -1,11 +1,28 @@
-import {useState} from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
-import {rootAPI} from "../utils/ip";
-import {useNavigate} from "react-router-dom";
+import { rootAPI } from "../utils/ip";
+import { useAuth } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
+import loginTheme from "../themes/loginTheme";
+
+import {
+  TextField,
+  Button,
+  ThemeProvider,
+  Typography,
+  Link,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  CircularProgress,
+} from "@mui/material";
+
 import ImageCarousel from "./ImageCarousel";
 
 const SignUp = () => {
   const navigate = useNavigate();
+  const { role: tokenRole } = useAuth();
 
   const [first_name, setFirstName] = useState("");
   const [last_name, setLastName] = useState("");
@@ -14,6 +31,7 @@ const SignUp = () => {
   const [password, setPassword] = useState("");
   const [confirm_password, setConfirmPassword] = useState("");
   const [msg, setMsg] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleRegister = async () => {
     if (!first_name || !last_name || !email || !password || !confirm_password) {
@@ -23,6 +41,8 @@ const SignUp = () => {
       setMsg("Passwords do not match");
       return;
     }
+
+    setLoading(true);
 
     try {
       await axios.post(`${rootAPI}/register`, {
@@ -39,127 +59,154 @@ const SignUp = () => {
     } catch (error) {
       setMsg(error.response.data.msg);
       console.log(error.response.data.msg);
+    } finally {
+      setLoading(false);
     }
   };
 
+  useEffect(() => {
+    if (tokenRole === "candidate") {
+      navigate("/code-problem");
+    } else if (tokenRole === "recruiter") {
+      navigate("/cv-matching");
+    }
+  }, [tokenRole]);
+
   return (
-    <div className="flex flex-col justify-between sm:flex-row w-full h-[100vh] rounded-xl bg-white p-3 font-spaceGrotesk">
-      <div className="hidden sm:flex flex-col justify-between w-3/5 bg-primary500 rounded-xl text-white py-20 px-14">
-        <h1 className="text-2xl font-bold self-start text-left">SREC</h1>
-        <div className="">
-          <h1 className="text-3xl font-bold">
-            Start your new <br />
-            recruitment with us.
-          </h1>
-          <p className="text-small opacity-80 mt-5">
-            Discover our advanced recruitment platform, <br />
-            offering a seamless evaluation process for both <br />
-            hard and soft skills.
-          </p>
-        </div>
-        <ImageCarousel />
-      </div>
-
-      <div className="flex flex-col sm:w-full h-full text-left p-5 sm:p-20">
-        <div className="flex flex-col">
-          <h1 className="text-3xl font-bold">Sign up</h1>
-          <p className="mt-2 text-sm">
-            Already have an account?{" "}
-            <a href="/login" className="font-bold underline">
-              Sign In
-            </a>
-          </p>
+    <ThemeProvider theme={loginTheme}>
+      <div className="flex flex-col sm:flex-row w-full h-[100vh] rounded-xl bg-white p-3">
+        <div className="hidden sm:flex flex-col justify-between w-3/5 bg-primary500 rounded-xl text-white py-20 px-14">
+          <Typography
+            variant="h3"
+            sx={{
+              fontWeight: "bold",
+            }}
+          >
+            SREC
+          </Typography>
+          <div className="">
+            <Typography variant="h4" sx={{ fontWeight: "bold" }}>
+              Start your new <br />
+              recruitment with us.
+            </Typography>
+            <Typography variant="body1" className="opacity-80">
+              Discover our advanced recruitment platform, <br />
+              offering a seamless evaluation process for both <br />
+              hard and soft skills.
+            </Typography>
+          </div>
+          <ImageCarousel />
         </div>
 
-        <div className="mt-24 flex flex-col gap-5">
-          <div className="flex justify-between gap-5">
-            <div className="labelAndInput w-full">
-              <label htmlFor="name" className="">
-                First Name
-              </label>
-              <input
+        <div className="flex flex-col sm:w-full h-full text-left p-5 sm:p-20">
+          <div className="flex flex-col">
+            <Typography variant="h3" sx={{ fontWeight: "bold" }}>
+              Sign up
+            </Typography>
+            <Typography variant="body2">
+              Don&apos;t have an account?{" "}
+              <Link
+                href="/register"
+                sx={{
+                  fontWeight: "bold",
+                  color: "#10a1fc",
+                  "&:hover": {
+                    color: "#0077d1",
+                  },
+                }}
+              >
+                Sign Up
+              </Link>
+            </Typography>
+          </div>
+
+          <div className="mt-24 flex flex-col gap-5">
+            <div className="flex justify-between gap-5">
+              <TextField
+                label="First Name"
+                variant="outlined"
                 type="text"
                 placeholder="First Name"
-                id="name"
-                className="input"
                 onChange={(e) => setFirstName(e.target.value)}
+                sx={{ width: "50%" }}
               />
-            </div>
 
-            <div className="labelAndInput w-full">
-              <label htmlFor="lastName" className="">
-                Last Name
-              </label>
-              <input
+              <TextField
+                label="Last Name"
+                variant="outlined"
                 type="text"
                 placeholder="Last Name"
-                id="lastName"
-                className="input"
                 onChange={(e) => setLastName(e.target.value)}
+                sx={{ width: "50%" }}
               />
             </div>
-          </div>
 
-          <div className="labelAndInput">
-            <label htmlFor="email" className="">
-              Who are you?
-            </label>
-            <select name="" id="" className="input" onChange={(e) => setRole(e.target.value)}>
-              <option value="candidate">Candidate</option>
-              <option value="recruiter">Recruiter</option>
-            </select>
-          </div>
+            <FormControl fullWidth>
+              <InputLabel id="role-label" sx={{ background: "#fff", px: 1 }}>
+                Who are you?
+              </InputLabel>
+              <Select
+                labelId="role-label"
+                id="role-select"
+                value={role}
+                label="Age"
+                onChange={(e) => setRole(e.target.value)}
+              >
+                <MenuItem value={"candidate"}>Recruiter</MenuItem>
+                <MenuItem value={"recruiter"}>Candidate</MenuItem>
+              </Select>
+            </FormControl>
 
-          <div className="labelAndInput">
-            <label htmlFor="email" className="">
-              Email
-            </label>
-            <input
+            <TextField
+              label="Email"
+              variant="outlined"
               type="text"
               placeholder="Email"
-              id="email"
-              className="input"
               onChange={(e) => setEmail(e.target.value)}
             />
-          </div>
-
-          <div className="labelAndInput">
-            <label htmlFor="password" className="">
-              Password
-            </label>
-            <input
+            <TextField
+              label="Password"
+              variant="outlined"
               type="password"
               placeholder="Password"
-              id="password"
-              className="input"
               onChange={(e) => setPassword(e.target.value)}
             />
-          </div>
 
-          <div className="labelAndInput">
-            <label htmlFor="confirmPassword" className="">
-              Confirm Password
-            </label>
-            <input
+            <TextField
+              label="Confirm Password"
+              variant="outlined"
               type="password"
               placeholder="Confirm Password"
-              id="confirmPassword"
-              className="input"
               onChange={(e) => setConfirmPassword(e.target.value)}
             />
+
+            {msg && (
+              <Typography variant="body2" className="text-red-500">
+                {msg}
+              </Typography>
+            )}
+
+            <Button
+              variant="contained"
+              onClick={handleRegister}
+              className="self-end w-1/5 text-white py-2 sm:py-3 rounded-md"
+              sx={{
+                backgroundColor: "#10a1fc",
+                textTransform: "none",
+                fontWeight: "bold",
+                fontSize: "1rem",
+                "&:hover": {
+                  backgroundColor: "#0077d1",
+                  textTransform: "none",
+                },
+              }}
+            >
+              { loading ? <CircularProgress size={25} color="inherit" /> : "Sign Up"}
+            </Button>
           </div>
-
-          {msg && <p className="text-red-500">{msg}</p>}
-
-          <button
-            className="w-2/5 bg-primary500 hover:bg-primary600 text-white py-2 sm:py-3 rounded-md cursor-pointer"
-            onClick={handleRegister}
-          >
-            Sign Up
-          </button>
         </div>
       </div>
-    </div>
+    </ThemeProvider>
   );
 };
 

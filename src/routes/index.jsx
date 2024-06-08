@@ -1,4 +1,4 @@
-import { Routes, Route, useLocation } from 'react-router-dom';
+import { Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import { Helmet, HelmetProvider } from 'react-helmet-async';
 import routes from './routeConfig';
 
@@ -9,6 +9,8 @@ import CodeProblem from '../components/CodeProblem';
 import PrivateRoute from './PrivateRoute';
 import Forbidden from '../components/Forbidden';
 import Layout from '../components/Layout.jsx';
+import Home from '../components/Home';
+import PageNotFound from '../components/PageNotFound';
 
 const AppRoutes = () => {
     const location = useLocation();
@@ -44,17 +46,18 @@ const AppRoutes = () => {
                 <Route path={routes.login} element={<Login />} />
                 <Route path={routes.register} element={<SignUp />} />
                 <Route path={routes.forbidden} element={<Forbidden />} />
+                <Route path={routes.pageNotFound} element={<PageNotFound/>}></Route>
 
+                <Route path={routes.home} element={<Home />} />
                 <Route element={<Layout />}>
                     <Route
                         path={routes.code_problem}
                         element={
                             <PrivateRoute requiredRole="candidate">
-                                <CodeProblem />
+                                <CodeProblem /> 
                             </PrivateRoute>
                         }
                     />
-
                     <Route
                         path={routes.cv_matching}
                         element={
@@ -64,6 +67,8 @@ const AppRoutes = () => {
                         }
                     />
                 </Route>
+
+                <Route path="*" element={<Navigate to={routes.pageNotFound} replace />} />
             </Routes>
         </div>
     );

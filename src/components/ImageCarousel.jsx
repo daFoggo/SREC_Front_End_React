@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { user_rating } from "../constants";
 import gsap from "gsap";
+import { Typography } from "@mui/material";
 
 const ImageCarousel = () => {
     const [currentIndex, setCurrentIndex] = useState(0);
@@ -43,7 +44,7 @@ const ImageCarousel = () => {
                     }
                     ref={(el) => (imagesRef.current[index] = el)}
                 >
-                    <p>{user.comment}</p>
+                    <Typography variant="body2">{user.comment}</Typography>
                     <div className="flex gap-2">
                         <img
                             src={user.image}
@@ -51,8 +52,8 @@ const ImageCarousel = () => {
                             className="object-cover h-16 w-16 rounded-xl"
                         />
                         <div className="flex flex-col gap-1">
-                            <p className="font-bold">{user.name}</p>
-                            <p className="text-sm">{user.job}</p>
+                            <Typography sx={{ fontWeight: "bold" }}>{user.name}</Typography>
+                            <Typography variant="body2">{user.job}</Typography>
                         </div>
                     </div>
                 </div>
@@ -61,7 +62,10 @@ const ImageCarousel = () => {
             <div className="flex items-center justify-center gap-5 mt-5">
                 {user_rating.map((_, index) => (
                     <span
-                        className={`bg-white rounded-full w-2 h-2 cursor-pointer ${index === currentIndex ? "" : "bg-opacity-50 hover:bg-opacity-100 hover:bg-primary600"}`}
+                        className={`bg-white rounded-full w-2 h-2 cursor-pointer ${index === currentIndex
+                                ? ""
+                                : "bg-opacity-50 hover:bg-opacity-100 hover:bg-primary600"
+                            }`}
                         key={index}
                         onClick={() => handleClick(index)}
                     ></span>

@@ -5,6 +5,7 @@ const routes = {
     code_problem: '/code-problem',
     cv_matching: '/cv-matching',
     forbidden: '/forbidden',
+    pageNotFound: '/page-not-found'
 }
 
 export default routes;
