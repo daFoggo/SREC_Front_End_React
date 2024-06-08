@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { useAuth } from '../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
@@ -16,9 +18,13 @@ import AdbIcon from '@mui/icons-material/Adb';
 
 import { navLists, userDropdown } from '../constants';
 
+
 const NavBar = () => {
   const [anchorElNav, setAnchorElNav] = useState(null);
   const [anchorElUser, setAnchorElUser] = useState(null);
+
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
 
   const handleOpenNavMenu = (event) => {
     setAnchorElNav(event.currentTarget);
@@ -35,11 +41,16 @@ const NavBar = () => {
     setAnchorElUser(null);
   };
 
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  }
+
   return (
-    <AppBar position="static" sx={{backgroundColor: 'white', color: 'black', boxShadow: "none"}}>
+    <AppBar position="static" sx={{ backgroundColor: 'white', color: '#052b4c', boxShadow: "none" }}>
       <Container maxWidth="xl">
         <Toolbar disableGutters>
-          <AdbIcon sx={{ display: { xs: 'none', md: 'flex' }, mr: 1, fontSize: 24 }} />
+          <AdbIcon sx={{ display: { xs: 'none', md: 'flex', color: 'inherit' }, mr: 1, fontSize: 24 }} />
           <Typography
             variant="h5"
             noWrap
@@ -64,6 +75,7 @@ const NavBar = () => {
               aria-controls="menu-appbar"
               aria-haspopup="true"
               onClick={handleOpenNavMenu}
+              color="#052b4c"
             >
               <MenuIcon />
             </IconButton>
@@ -87,7 +99,7 @@ const NavBar = () => {
             >
               {navLists.map((category) => (
                 <MenuItem key={category.id} onClick={handleCloseNavMenu}>
-                  <Typography textAlign="center" color="textPrimary">{category.title}</Typography>
+                  <Typography textAlign="center" sx={{ color: "#052b4c" }}>{category.title}</Typography>
                 </MenuItem>
               ))}
             </Menu>
@@ -102,7 +114,7 @@ const NavBar = () => {
               display: { xs: 'flex', md: 'none' },
               flexGrow: 1,
               fontWeight: 700,
-              color: 'inherit',
+              color: '#052b4c',
               textDecoration: 'none',
             }}
           >
@@ -113,7 +125,7 @@ const NavBar = () => {
               <Button
                 key={category.id}
                 onClick={handleCloseNavMenu}
-                sx={{ my: 2, mx: 2, color: 'black', display: 'block', fontWeight: "bold", fontSize: "1rem"}}
+                sx={{ my: 2, mx: 2, color: '#052b4c', display: 'block', fontWeight: "bold", fontSize: "1rem", }}
               >
                 {category.title}
               </Button>
@@ -123,7 +135,7 @@ const NavBar = () => {
           <Box sx={{ flexGrow: 0 }}>
             <Tooltip title="Open settings">
               <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
+                <Avatar sx={{ backgroundColor: "#052b4c" }}>{user && user.sub && user.sub.first_name ? user.sub.first_name[0] : ''}</Avatar>
               </IconButton>
             </Tooltip>
             <Menu
@@ -144,7 +156,7 @@ const NavBar = () => {
             >
               {userDropdown.map((category) => (
                 <MenuItem key={category.id} onClick={handleCloseUserMenu}>
-                  <Typography textAlign="center" color="textPrimary">{category.title}</Typography>
+                  <Typography textAlign="center" color="#052b4c" onClick={category.title === "Logout" ? handleLogout : null}>{category.title}</Typography>
                 </MenuItem>
               ))}
             </Menu>

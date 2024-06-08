@@ -1,6 +1,6 @@
 import { createContext, useState, useContext, useEffect } from "react";
 import propTypes from "prop-types";
-import { jwtDecode } from 'jwt-decode';
+import {jwtDecode} from 'jwt-decode';
 
 export const AuthContext = createContext();
 
@@ -12,6 +12,7 @@ export const AuthProvider = ({ children }) => {
     const [token, setToken] = useState(() => localStorage.getItem("token"));
     const [user, setUser] = useState(null);
     const [role, setRole] = useState(null);
+    const [loading, setLoading] = useState(true);
 
     const clearUserData = () => {
         setToken(null);
@@ -27,7 +28,11 @@ export const AuthProvider = ({ children }) => {
         try {
             const decodedUser = jwtDecode(userToken);
             setUser(decodedUser);
-            setRole(decodedUser.sub.role);
+            if (decodedUser.sub) {
+                setRole(decodedUser.sub.role);
+            } else {
+                setRole(null);
+            }
         } catch (error) {
             handleTokenError(error);
         }
@@ -43,20 +48,29 @@ export const AuthProvider = ({ children }) => {
     }
 
     useEffect(() => {
-        try {
-            const decodedUser = jwtDecode(token);
-            setUser(decodedUser);
-            setRole(decodedUser.sub.role); 
-        } catch (error) {
-            handleTokenError(error);
+        if (token) {
+            try {
+                const decodedUser = jwtDecode(token);
+                setUser(decodedUser);
+                if (decodedUser.sub) {
+                    setRole(decodedUser.sub.role);
+                } else {
+                    setRole(null);
+                }
+            } catch (error) {
+                handleTokenError(error);
+            }
+        } else {
+            console.log("No token found in localStorage");
         }
+        setLoading(false);
     }, [token]);
 
     return (
-        <AuthContext.Provider value={{ token, user, role, saveTokenAndUserData: saveTokenAndUserData, logout }}>
+        <AuthContext.Provider value={{ token, user, role, loading, saveTokenAndUserData, logout }}>
             {children}
         </AuthContext.Provider>
-    )
+    );
 }
 
 AuthProvider.propTypes = {

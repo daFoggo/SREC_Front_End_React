@@ -38,6 +38,7 @@ const theme = createTheme({
     },
     typography: {
         fontFamily: "Inter, sans-serif",
+        
     },
     components: {
         MuiButton: {
