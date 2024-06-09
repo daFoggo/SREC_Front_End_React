@@ -4,6 +4,7 @@ import { rootAPI } from "../utils/ip";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import loginTheme from "../themes/loginTheme";
+import { useAlert } from "../context/AlertContext";
 
 import {
   TextField,
@@ -23,6 +24,7 @@ import ImageCarousel from "./ImageCarousel";
 const SignUp = () => {
   const navigate = useNavigate();
   const { role: tokenRole } = useAuth();
+  const { showAlert } = useAlert();
 
   const [first_name, setFirstName] = useState("");
   const [last_name, setLastName] = useState("");
@@ -55,10 +57,18 @@ const SignUp = () => {
       });
 
       setMsg("");
+      showAlert({
+        message: "Registration successful",
+        type: "success",
+      });
       navigate("/login");
     } catch (error) {
       setMsg(error.response.data.msg);
       console.log(error.response.data.msg);
+      showAlert({
+        message: error.response.data.msg,
+        type: "error",
+      });
     } finally {
       setLoading(false);
     }

@@ -10,7 +10,7 @@ const PrivateRoute = ({ children, requiredRole }) => {
     if (loading) {
         return (
             <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-                <CircularProgress />
+                <CircularProgress sx={{ color: "#10a1fc"}} />
             </Box>
         );
     }

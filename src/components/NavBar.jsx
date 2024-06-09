@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { useAlert } from '../context/AlertContext';
 
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
@@ -25,6 +26,7 @@ const NavBar = () => {
 
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const { showAlert } = useAlert();
 
   const handleOpenNavMenu = (event) => {
     setAnchorElNav(event.currentTarget);
@@ -43,6 +45,10 @@ const NavBar = () => {
 
   const handleLogout = () => {
     logout();
+    showAlert({
+      message: 'Logout successful',
+      type: 'success',
+    });
     navigate('/login');
   }
 

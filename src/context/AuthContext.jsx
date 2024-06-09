@@ -61,7 +61,7 @@ export const AuthProvider = ({ children }) => {
                 handleTokenError(error);
             }
         } else {
-            console.log("No token found in localStorage");
+            console.log("No token found");
         }
         setLoading(false);
     }, [token]);
