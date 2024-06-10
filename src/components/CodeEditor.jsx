@@ -1,8 +1,8 @@
 import { Editor } from "@monaco-editor/react";
-import { useState, useRef } from "react";
-import { FormControl, InputLabel, Select, MenuItem} from "@mui/material";
+import { useState, useRef, useEffect } from "react";
+import { FormControl, InputLabel, Select, MenuItem } from "@mui/material";
 import { language_versions, code_snippets } from "../constants";
-import { codeAPI } from "../utils/ip";
+import { codeExcuteAPI } from "../utils/ip";
 import { CircularProgress } from "@mui/material";
 import axios from "axios";
 
@@ -15,6 +15,11 @@ const CodeEditor = () => {
     const [output, setOutput] = useState("");
     const [loadingRun, setLoadingRun] = useState(false);
     const [loadingSubmit, setLoadingSubmit] = useState(false);
+    const [error, setError] = useState("");
+
+    useEffect(() => {
+        axios
+    }, [])
     const editorRef = useRef();
 
     const onMount = (editor) => {
@@ -23,6 +28,8 @@ const CodeEditor = () => {
     };
 
     const handleChangeLanguage = (e) => {
+        setInput("");
+        setOutput("");
         setLanguage(e.target.value);
         setValue(code_snippets[e.target.value]);
     }
@@ -36,11 +43,11 @@ const CodeEditor = () => {
         if (!sourceCode) return;
         try {
             setLoadingRun(true);
-            const response = await axios.post(`${codeAPI}/execute`, {
+            const response = await axios.post(`${codeExcuteAPI}/execute`, {
                 files: [
                     {
-                        name: "main.cpp", 
-                        content: sourceCode 
+                        name: "main.cpp",
+                        content: sourceCode
                     }
                 ],
                 language,
@@ -48,8 +55,16 @@ const CodeEditor = () => {
                 stdin: input
             });
             setOutput(response.data.run.stdout);
+            setError(response.data.run.stderr || "");
         } catch (error) {
             console.error(error);
+            if (error.response) {
+                setError(`Server error: ${error.response.status} - ${error.response.data.message}`);
+            } else if (error.request) {
+                setError("Network error: No response received from the server.");
+            } else {
+                setError("Error occurred while processing the request.");
+            }
         } finally {
             setLoadingRun(false);
         }
@@ -94,8 +109,8 @@ const CodeEditor = () => {
                 />
             </div>
 
-            <div className="flex gap-3">
-                <div className="w-1/2">
+            <div className="flex flex-col sm:flex-row gap-3">
+                <div className="sm:w-1/2">
                     <h2 className="font-bold text-primary950 mb-1">Input</h2>
                     <textarea
                         value={input}
@@ -105,13 +120,13 @@ const CodeEditor = () => {
                     ></textarea>
                 </div>
 
-                <div className="w-1/2">
+                <div className="sm:w-1/2">
                     <h2 className="font-bold text-primary950 mb-1">Output</h2>
                     <textarea
                         value={output}
                         readOnly
-                        className="w-full h-[30vh] p-3 rounded-md shadow-md outline-primary500 focus:shadow-primary200"
-                        placeholder='Click "Run code" to see the result'
+                        className={"w-full h-[30vh] p-3 rounded-md shadow-md outline-primary500 focus:shadow-primary200" + (error ? " placeholder-red-500" : "")}
+                        placeholder={error ? error : 'Click "Run code" to see the result'}
                     ></textarea>
                 </div>
             </div>

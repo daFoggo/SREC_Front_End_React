@@ -29,11 +29,13 @@ const SignUp = () => {
   const [first_name, setFirstName] = useState("");
   const [last_name, setLastName] = useState("");
   const [role, setRole] = useState("candidate");
+  const [job_level, setJobLevel] = useState("junior");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirm_password, setConfirmPassword] = useState("");
   const [msg, setMsg] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showJobLevel, setShowJobLevel] = useState(false);
 
   const handleRegister = async () => {
     if (!first_name || !last_name || !email || !password || !confirm_password) {
@@ -51,6 +53,7 @@ const SignUp = () => {
         first_name,
         last_name,
         role,
+        job_level,
         email,
         password,
         confirm_password,
@@ -81,6 +84,16 @@ const SignUp = () => {
       navigate("/cv-matching");
     }
   }, [tokenRole]);
+
+  useEffect(() => {
+    if (role === "recruiter") {
+      setShowJobLevel(false);
+      setJobLevel("None");
+    } else {
+      setShowJobLevel(true);
+      setJobLevel("junior");
+    }
+  }, [role])
 
   return (
     <ThemeProvider theme={loginTheme}>
@@ -114,7 +127,7 @@ const SignUp = () => {
               Sign up
             </Typography>
             <Typography variant="body2">
-              Don&apos;t have an account?{" "}
+              Already have an account?{" "}
               <Link
                 href="/register"
                 sx={{
@@ -125,7 +138,7 @@ const SignUp = () => {
                   },
                 }}
               >
-                Sign Up
+                Login
               </Link>
             </Typography>
           </div>
@@ -151,21 +164,40 @@ const SignUp = () => {
               />
             </div>
 
-            <FormControl fullWidth>
-              <InputLabel id="role-label" sx={{ background: "#fff", px: 1 }}>
-                Who are you?
-              </InputLabel>
-              <Select
-                labelId="role-label"
-                id="role-select"
-                value={role}
-                label="Age"
-                onChange={(e) => setRole(e.target.value)}
-              >
-                <MenuItem value={"candidate"}>Recruiter</MenuItem>
-                <MenuItem value={"recruiter"}>Candidate</MenuItem>
-              </Select>
-            </FormControl>
+            <div className="flex justify-between gap-5">
+              <FormControl fullWidth>
+                <InputLabel id="role-label" sx={{ background: "#fff", px: 1 }}>
+                  Who are you?
+                </InputLabel>
+                <Select
+                  labelId="role-label"
+                  id="role-select"
+                  value={role}
+                  onChange={(e) => setRole(e.target.value)}
+                >
+                  <MenuItem value={"recruiter"}>Recruiter</MenuItem>
+                  <MenuItem value={"candidate"}>Candidate</MenuItem>
+                </Select>
+              </FormControl>
+
+              {showJobLevel &&
+                <FormControl fullWidth>
+                  <InputLabel id="job-level-label" sx={{ background: "#fff", px: 1 }}>
+                    Your current job level?
+                  </InputLabel>
+                  <Select
+                    labelId="job-level-label"
+                    id="job-level-select"
+                    value={job_level}
+                    onChange={(e) => setJobLevel(e.target.value)}
+                  >
+                    <MenuItem value={"junior"}>Junior</MenuItem>
+                    <MenuItem value={"middle"}>Middle</MenuItem>
+                    <MenuItem value={"senior"}>Senior</MenuItem>
+                  </Select>
+                </FormControl>
+              }
+            </div>
 
             <TextField
               label="Email"
@@ -211,7 +243,7 @@ const SignUp = () => {
                 },
               }}
             >
-              { loading ? <CircularProgress size={25} color="inherit" /> : "Sign Up"}
+              {loading ? <CircularProgress size={25} color="inherit" /> : "Sign Up"}
             </Button>
           </div>
         </div>
