@@ -60,7 +60,7 @@ export const language_versions = {
     python: "3.10.0",
     java: "15.0.2",
     csharp: "6.12.0",
-    cpp: "11.2.0",
+    cpp: "10.2.0",
     php: "8.2.3",
 };
 

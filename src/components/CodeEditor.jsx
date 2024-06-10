@@ -2,7 +2,7 @@ import { Editor } from "@monaco-editor/react";
 import { useState, useRef, useEffect } from "react";
 import { FormControl, InputLabel, Select, MenuItem } from "@mui/material";
 import { language_versions, code_snippets } from "../constants";
-import { codeExcuteAPI } from "../utils/ip";
+import { emkcAPI } from "../utils/ip";
 import { CircularProgress } from "@mui/material";
 import axios from "axios";
 
@@ -20,6 +20,7 @@ const CodeEditor = () => {
     useEffect(() => {
         axios
     }, [])
+    
     const editorRef = useRef();
 
     const onMount = (editor) => {
@@ -43,7 +44,7 @@ const CodeEditor = () => {
         if (!sourceCode) return;
         try {
             setLoadingRun(true);
-            const response = await axios.post(`${codeExcuteAPI}/execute`, {
+            const response = await axios.post(`${emkcAPI}/execute`, {
                 files: [
                     {
                         name: "main.cpp",
