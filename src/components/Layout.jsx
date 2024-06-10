@@ -5,7 +5,7 @@ const Layout = () => {
     return (
         <div className="flex flex-col h-screen">
             <NavBar ></NavBar>
-            <main className="flex-grow font-inter p-2">
+            <main className="flex-grow font-inter">
                 <Outlet />
             </main>
         </div>

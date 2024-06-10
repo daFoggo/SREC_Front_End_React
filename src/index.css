@@ -21,4 +21,9 @@
     .iconAndText{
         @apply flex items-center gap-2;
     }
+
+    .code-pre{
+        @apply w-full text-pretty;
+    }
+
 }
