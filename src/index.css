@@ -23,7 +23,7 @@
     }
 
     .code-pre{
-        @apply w-full text-pretty;
+        @apply w-full text-pretty font-inter;
     }
 
 }

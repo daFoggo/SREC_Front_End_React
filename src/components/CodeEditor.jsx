@@ -1,5 +1,5 @@
 import { Editor } from "@monaco-editor/react";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef} from "react";
 import { FormControl, InputLabel, Select, MenuItem } from "@mui/material";
 import { language_versions, code_snippets } from "../constants";
 import { emkcAPI } from "../utils/ip";
@@ -17,10 +17,6 @@ const CodeEditor = () => {
     const [loadingSubmit, setLoadingSubmit] = useState(false);
     const [error, setError] = useState("");
 
-    useEffect(() => {
-        axios
-    }, [])
-    
     const editorRef = useRef();
 
     const onMount = (editor) => {
@@ -39,15 +35,35 @@ const CodeEditor = () => {
         setInput(e.target.value);
     }
 
+    const getFileExtension = (language) => {
+        switch (language) {
+            case "javascript":
+                return "js";
+            case "python":
+                return "py";
+            case "java":
+                return "java";
+            case "csharp":
+                return "cs";
+            case "cpp":
+                return "cpp";
+            case "php":
+                return "php";
+            default:
+                return "txt";
+        }
+    }
+
     const runCode = async () => {
         const sourceCode = editorRef.current.getValue();
         if (!sourceCode) return;
+        const fileName = `main.${getFileExtension(language)}`;
         try {
             setLoadingRun(true);
             const response = await axios.post(`${emkcAPI}/execute`, {
                 files: [
                     {
-                        name: "main.cpp",
+                        name: fileName,
                         content: sourceCode
                     }
                 ],

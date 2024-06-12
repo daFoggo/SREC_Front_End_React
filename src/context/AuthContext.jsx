@@ -12,6 +12,7 @@ export const AuthProvider = ({ children }) => {
     const [token, setToken] = useState(() => localStorage.getItem("token"));
     const [user, setUser] = useState(null);
     const [role, setRole] = useState(null);
+    const [jobLevel, setJobLevel] = useState(null);
     const [loading, setLoading] = useState(true);
 
     const clearUserData = () => {
@@ -54,6 +55,7 @@ export const AuthProvider = ({ children }) => {
                 setUser(decodedUser);
                 if (decodedUser.sub) {
                     setRole(decodedUser.sub.role);
+                    setJobLevel(decodedUser.sub.job_level);
                 } else {
                     setRole(null);
                 }
@@ -67,7 +69,7 @@ export const AuthProvider = ({ children }) => {
     }, [token]);
 
     return (
-        <AuthContext.Provider value={{ token, user, role, loading, saveTokenAndUserData, logout }}>
+        <AuthContext.Provider value={{ token, user, role, jobLevel, loading, saveTokenAndUserData, logout }}>
             {children}
         </AuthContext.Provider>
     );
