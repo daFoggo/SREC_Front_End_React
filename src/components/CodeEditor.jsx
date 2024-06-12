@@ -1,9 +1,11 @@
 import { Editor } from "@monaco-editor/react";
-import { useState, useRef} from "react";
+import { useState, useRef } from "react";
 import { FormControl, InputLabel, Select, MenuItem } from "@mui/material";
 import { language_versions, code_snippets } from "../constants";
 import { emkcAPI } from "../utils/ip";
 import { CircularProgress } from "@mui/material";
+import { useCode } from "../context/CodeContext";
+import processData from "../utils/processInputOutput";
 import axios from "axios";
 
 const languages = Object.entries(language_versions);
@@ -13,9 +15,11 @@ const CodeEditor = () => {
     const [language, setLanguage] = useState("cpp");
     const [input, setInput] = useState("");
     const [output, setOutput] = useState("");
-    const [loadingRun, setLoadingRun] = useState(false);
+    const [loadingRunCustom, setLoadingRunCustom] = useState(false);
+    const [loadingRunPublic, setLoadingRunPublic] = useState(false);
     const [loadingSubmit, setLoadingSubmit] = useState(false);
     const [error, setError] = useState("");
+    const { currentProblem, codeData, updateCodeData, totalPoint, updatePoint } = useCode();
 
     const editorRef = useRef();
 
@@ -29,11 +33,11 @@ const CodeEditor = () => {
         setOutput("");
         setLanguage(e.target.value);
         setValue(code_snippets[e.target.value]);
-    }
+    };
 
     const handleChangeInput = (e) => {
         setInput(e.target.value);
-    }
+    };
 
     const getFileExtension = (language) => {
         switch (language) {
@@ -52,44 +56,130 @@ const CodeEditor = () => {
             default:
                 return "txt";
         }
-    }
+    };
 
-    const runCode = async () => {
-        const sourceCode = editorRef.current.getValue();
-        if (!sourceCode) return;
+    const executeCode = async (sourceCode, language, input) => {
         const fileName = `main.${getFileExtension(language)}`;
+
         try {
-            setLoadingRun(true);
             const response = await axios.post(`${emkcAPI}/execute`, {
                 files: [
                     {
                         name: fileName,
-                        content: sourceCode
-                    }
+                        content: sourceCode,
+                    },
                 ],
                 language,
                 version: language_versions[language],
-                stdin: input
+                stdin: input,
             });
-            setOutput(response.data.run.stdout);
-            setError(response.data.run.stderr || "");
+            return {
+                output: response.data.run.stdout,
+                error: response.data.run.stderr || "",
+            };
         } catch (error) {
             console.error(error);
+            let errorMessage = "Error occurred while processing the request.";
             if (error.response) {
-                setError(`Server error: ${error.response.status} - ${error.response.data.message}`);
+                errorMessage = `Server error: ${error.response.status} - ${error.response.data.message}`;
             } else if (error.request) {
-                setError("Network error: No response received from the server.");
-            } else {
-                setError("Error occurred while processing the request.");
+                errorMessage = "Network error: No response received from the server.";
             }
-        } finally {
-            setLoadingRun(false);
+            return { error: errorMessage };
         }
     };
 
-    const handleSubmit = () => {
-        console.log("Submit code");
+    const runTestCase = async (input, output) => {
+        let inputCases = processData(input);
+        let outputCases = processData(output);
+        let finalResult = true;
+        try {
+            let failedTestCases = [];
+            for (let i = 0; i < inputCases.length; i++) {
+                const inputCase = inputCases[i];
+                const expectedOutput = outputCases[i];
+                const sourceCode = editorRef.current.getValue();
+                if (!sourceCode) {
+                    console.error("No source code provided.");
+                    return;
+                }
+
+                const { output: actualOutput, error } = await executeCode(
+                    sourceCode,
+                    language,
+                    inputCase
+                );
+
+                if (error) {
+                    console.error("Error occurred while running the code:", error);
+                    setError(error);
+                    return;
+                }
+
+                if (actualOutput.trim() !== expectedOutput.trim()) {
+                    console.log(`Test case ${i + 1}: Failed`);
+                    finalResult = false;
+                    failedTestCases.push(i + 1);
+                    console.log("Expected Output:", expectedOutput);
+                    console.log("Actual Output:", actualOutput);
+                } else {
+                    console.log(`Test case ${i + 1}: Passed`);
+                }
+            }
+
+            if (finalResult) {
+                console.log("All test cases passed.");
+                updatePoint("correct");
+            } else {
+                console.log("Some test cases failed:", failedTestCases.join(", "));
+                updatePoint("incorrect");
+            }
+
+        } catch (error) {
+            console.error("An error occurred:", error);
+        } finally {
+            console.log(totalPoint);
+        }
     };
+
+    const runCustomCase = async () => {
+        setLoadingRunCustom(true);
+        const sourceCode = editorRef.current.getValue();
+        if (!sourceCode) return;
+        const { output, error } = await executeCode(sourceCode, language, input);
+        setOutput(output);
+        setError(error);
+        setLoadingRunCustom(false);
+    };
+
+    const handleRunPublic = async () => {
+        setLoadingRunPublic(true);
+        try {
+            await runTestCase(
+                codeData[`test_${currentProblem}`].public_input,
+                codeData[`test_${currentProblem}`].public_output
+            );
+        } catch (error) {
+            console.error("An error occurred while running public test cases:", error);
+        } finally {
+            setLoadingRunPublic(false);
+        }
+    };
+
+    const handleSubmit = async () => {
+        setLoadingSubmit(true);
+        try {
+            await runTestCase(
+                codeData[`test_${currentProblem}`].gen_input,
+                codeData[`test_${currentProblem}`].gen_output
+            );
+        } catch (error) {
+            console.error("An error occurred while submitting the code:", error);
+        } finally {
+            setLoadingSubmit(false);
+        }
+    };
+
 
     return (
         <div className="flex flex-col gap-2">
@@ -142,19 +232,47 @@ const CodeEditor = () => {
                     <textarea
                         value={output}
                         readOnly
-                        className={"w-full h-[30vh] p-3 rounded-md shadow-md outline-primary500 focus:shadow-primary200" + (error ? " placeholder-red-500" : "")}
+                        className={
+                            "w-full h-[30vh] p-3 rounded-md shadow-md outline-primary500 focus:shadow-primary200" +
+                            (error ? " placeholder-red-500" : "")
+                        }
                         placeholder={error ? error : 'Click "Run code" to see the result'}
                     ></textarea>
                 </div>
             </div>
 
             <div className="flex gap-5 mt-5">
-                <button className="bg-white text-primary500 font-bold py-2 px-5 rounded-md hover:bg-slate-300 hover:text-primary950 duration-300 shadow-md" onClick={runCode}>
-                    {loadingRun ? <CircularProgress size={20} /> : "Run code"}
+                <button
+                    className="bg-white text-primary500 font-bold py-2 px-5 rounded-md hover:bg-slate-300 hover:text-primary950 duration-300 shadow-md"
+                    onClick={runCustomCase}
+                >
+                    {loadingRunCustom ? (
+                        <CircularProgress size={20} />
+                    ) : (
+                        "Run with custom input"
+                    )}
                 </button>
 
-                <button className="bg-primary500 text-white font-bold py-2 px-5 rounded-md hover:bg-primary600 duration-300 shadow-md shadow-blue-300" onClick={handleSubmit}>
-                    {loadingSubmit ? <CircularProgress size={20} color="inherit" /> : "Submit"}
+                <button
+                    className="bg-white text-primary500 font-bold py-2 px-5 rounded-md hover:bg-slate-300 hover:text-primary950 duration-300 shadow-md"
+                    onClick={handleRunPublic}
+                >
+                    {loadingRunPublic ? (
+                        <CircularProgress size={20} />
+                    ) : (
+                        "Run with test cases"
+                    )}
+                </button>
+
+                <button
+                    className="bg-primary500 text-white font-bold py-2 px-5 rounded-md hover:bg-primary600 duration-300 shadow-md shadow-blue-300"
+                    onClick={handleSubmit}
+                >
+                    {loadingSubmit ? (
+                        <CircularProgress size={20} color="inherit" />
+                    ) : (
+                        "Submit"
+                    )}
                 </button>
             </div>
         </div>

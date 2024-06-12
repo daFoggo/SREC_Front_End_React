@@ -6,7 +6,6 @@ import { useCode } from "../context/CodeContext";
 import { codeAPI } from "../utils/ip";
 import PageLoadingOverlay from "./PageLoadingOverlay";
 import extractCode from "../utils/extractCode";
-
 import axios from "axios";
 
 const CodeProblem = () => {
@@ -25,6 +24,7 @@ const CodeProblem = () => {
   useEffect(() => {
     getCodeData();
   }, []);
+
 
   const chartValue = (currentProblem / 3) * 100;
   if (!codeData) return (

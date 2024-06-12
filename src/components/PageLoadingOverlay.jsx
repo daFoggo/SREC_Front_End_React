@@ -10,7 +10,9 @@ const PageLoadingOverlay = () => {
             height="100vh"
         >
             <CircularProgress />
-            <h1 className="mt-2 text-primary950">Please wait a moment ...</h1>
+            <h1 className="mt-2 text-primary950">Please wait a moment <br />
+                We are preparing for you...
+            </h1>
         </Box>
     )
 }
