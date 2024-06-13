@@ -13,15 +13,15 @@ export const CodeProvider = ({ children }) => {
     const [currentProblem, setCurrentProblem] = useState("1");
 
     const updatePoint = (result) => {
-        setTotalPoint((prevTotalPoint) => result === "correct" ? prevTotalPoint + 1 : Math.max(prevTotalPoint - 1, 0));
+        setTotalPoint((prevTotalPoint) => result === "correct" ? prevTotalPoint + 1 : prevTotalPoint);
     }
 
     const updateCodeData = (data) => {
         setCodeData(data);
     }
 
-    const updateCurrentProblem = (problem) => {
-        setCurrentProblem(problem);
+    const updateCurrentProblem = () => {
+        setCurrentProblem((c) => (parseInt(c) + 1).toString());
     }
 
     return (

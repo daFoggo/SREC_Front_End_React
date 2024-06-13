@@ -4,6 +4,7 @@ import CodeEditor from "./CodeEditor";
 import { useAuth } from "../context/AuthContext";
 import { useCode } from "../context/CodeContext";
 import { codeAPI } from "../utils/ip";
+import { Navigate, useNavigate } from "react-router-dom";
 import PageLoadingOverlay from "./PageLoadingOverlay";
 import extractCode from "../utils/extractCode";
 import axios from "axios";
@@ -11,6 +12,8 @@ import axios from "axios";
 const CodeProblem = () => {
   const { currentProblem, codeData, updateCodeData } = useCode();
   const { jobLevel, } = useAuth();
+
+  const navigate = useNavigate();
 
   const getCodeData = async () => {
     try {
@@ -22,11 +25,16 @@ const CodeProblem = () => {
   }
 
   useEffect(() => {
-    getCodeData();
-  }, []);
+    if (currentProblem === "4") {
+      navigate("/forbidden")
+    } else {
+      getCodeData();
+    }
+  }, [currentProblem]);
 
 
   const chartValue = (currentProblem / 3) * 100;
+
   if (!codeData) return (
     <PageLoadingOverlay />
   );

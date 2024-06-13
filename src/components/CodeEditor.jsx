@@ -1,5 +1,5 @@
 import { Editor } from "@monaco-editor/react";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { FormControl, InputLabel, Select, MenuItem } from "@mui/material";
 import { language_versions, code_snippets } from "../constants";
 import { emkcAPI } from "../utils/ip";
@@ -7,21 +7,32 @@ import { CircularProgress } from "@mui/material";
 import { useCode } from "../context/CodeContext";
 import processData from "../utils/processInputOutput";
 import axios from "axios";
+import SubmitCodeConfirm from "./Modal/SubmitCodeConfirm";
 
 const languages = Object.entries(language_versions);
 
 const CodeEditor = () => {
+    const [isModalOpen, setIsModalOpen] = useState(false);
     const [value, setValue] = useState(code_snippets["cpp"]);
     const [language, setLanguage] = useState("cpp");
     const [input, setInput] = useState("");
     const [output, setOutput] = useState("");
     const [loadingRunCustom, setLoadingRunCustom] = useState(false);
     const [loadingRunPublic, setLoadingRunPublic] = useState(false);
-    const [loadingSubmit, setLoadingSubmit] = useState(false);
+    const [loadingRunSubmit, setLoadingSubmit] = useState(false);
     const [error, setError] = useState("");
-    const { currentProblem, codeData, updateCodeData, totalPoint, updatePoint } = useCode();
+    const { currentProblem, codeData, totalPoint, updatePoint, updateCodeData, updateCurrentProblem } = useCode();
 
     const editorRef = useRef();
+
+    const handleOpenModal = () => {
+        setIsModalOpen((prev) => !prev);
+    }
+
+    const handleCloseModal = () => {
+        setIsModalOpen((prev) => !prev);
+    }
+
 
     const onMount = (editor) => {
         editorRef.current = editor;
@@ -89,11 +100,14 @@ const CodeEditor = () => {
         }
     };
 
-    const runTestCase = async (input, output) => {
+    const runTestCase = async (input, output, runningType) => {
         let inputCases = processData(input);
         let outputCases = processData(output);
         let finalResult = true;
+
         try {
+            runningType === "submit" ? setLoadingSubmit(true) : setLoadingRunPublic(true);
+
             let failedTestCases = [];
             for (let i = 0; i < inputCases.length; i++) {
                 const inputCase = inputCases[i];
@@ -129,16 +143,16 @@ const CodeEditor = () => {
 
             if (finalResult) {
                 console.log("All test cases passed.");
-                updatePoint("correct");
+                runningType === "submit" ? updatePoint("correct") : null;
             } else {
                 console.log("Some test cases failed:", failedTestCases.join(", "));
-                updatePoint("incorrect");
+                runningType === "submit" ? updatePoint("incorrect") : null;
             }
 
         } catch (error) {
             console.error("An error occurred:", error);
         } finally {
-            console.log(totalPoint);
+            runningType === "submit" ? setLoadingSubmit(false) : setLoadingRunPublic(false);
         }
     };
 
@@ -153,33 +167,41 @@ const CodeEditor = () => {
     };
 
     const handleRunPublic = async () => {
-        setLoadingRunPublic(true);
         try {
             await runTestCase(
                 codeData[`test_${currentProblem}`].public_input,
-                codeData[`test_${currentProblem}`].public_output
+                codeData[`test_${currentProblem}`].public_output,
+                "public"
             );
         } catch (error) {
             console.error("An error occurred while running public test cases:", error);
-        } finally {
-            setLoadingRunPublic(false);
         }
     };
 
-    const handleSubmit = async () => {
-        setLoadingSubmit(true);
+    const handleRunSubmit = async () => {
         try {
             await runTestCase(
                 codeData[`test_${currentProblem}`].gen_input,
-                codeData[`test_${currentProblem}`].gen_output
+                codeData[`test_${currentProblem}`].gen_output,
+                "submit"
             );
         } catch (error) {
             console.error("An error occurred while submitting the code:", error);
-        } finally {
-            setLoadingSubmit(false);
         }
+
+        handleCloseModal();
+        updateCurrentProblem();
+
     };
 
+
+    useEffect(() => {
+        console.log("TotalPoint updated:", totalPoint);
+    }, [totalPoint]);
+
+    useEffect(() => {
+        setValue(code_snippets[language])
+    }, [currentProblem])
 
     return (
         <div className="flex flex-col gap-2">
@@ -266,15 +288,13 @@ const CodeEditor = () => {
 
                 <button
                     className="bg-primary500 text-white font-bold py-2 px-5 rounded-md hover:bg-primary600 duration-300 shadow-md shadow-blue-300"
-                    onClick={handleSubmit}
+                    onClick={handleOpenModal}
                 >
-                    {loadingSubmit ? (
-                        <CircularProgress size={20} color="inherit" />
-                    ) : (
-                        "Submit"
-                    )}
+                    Submit
                 </button>
             </div>
+
+            <SubmitCodeConfirm isModalOpen={isModalOpen} handleCloseModal={handleCloseModal} handleRunSubmit={handleRunSubmit} loadingRunSubmit={loadingRunSubmit} />
         </div>
     );
 };
