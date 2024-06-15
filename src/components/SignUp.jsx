@@ -129,7 +129,7 @@ const SignUp = () => {
             <Typography variant="body2">
               Already have an account?{" "}
               <Link
-                href="/register"
+                href="/login"
                 sx={{
                   fontWeight: "bold",
                   color: "#10a1fc",
