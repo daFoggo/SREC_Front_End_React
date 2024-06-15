@@ -4,7 +4,7 @@ import CodeEditor from "./CodeEditor";
 import { useAuth } from "../context/AuthContext";
 import { useCode } from "../context/CodeContext";
 import { codeAPI } from "../utils/ip";
-import { Navigate, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import PageLoadingOverlay from "./PageLoadingOverlay";
 import extractCode from "../utils/extractCode";
 import axios from "axios";
@@ -74,11 +74,11 @@ const CodeProblem = () => {
       {/* Main content*/}
       <div className="h-full m-1 sm:m-5 flex flex-col sm:flex-row justify-between gap-5">
         <div className="w-full sm:w-2/5 h-[100vh] overflow-y-scroll bg-white rounded-md p-3 shadow-md">
-          <p>Source: {source}</p>
           <p>Difficulty: {difficulty}</p>
           <p>Time limit: {timeLimit}</p>
           <p>Memory limit: {memoryLimit}</p>
-
+          <p>Source: {source}</p>
+          
           <h1 className="text-md font-bold mt-5">Problem statement :</h1>
           <pre className="code-pre">{statement}</pre>
 
