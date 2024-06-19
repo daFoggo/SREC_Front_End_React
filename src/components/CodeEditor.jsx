@@ -2,18 +2,19 @@ import { Editor } from "@monaco-editor/react";
 import { useState, useRef, useEffect } from "react";
 import { FormControl, InputLabel, Select, MenuItem } from "@mui/material";
 import { language_versions, code_snippets } from "../constants";
-import { emkcAPI } from "../utils/ip";
+import { emkcAPI, rootAPI } from "../utils/ip";
 import { CircularProgress } from "@mui/material";
 import { useCode } from "../context/CodeContext";
 import processData from "../utils/processInputOutput";
 import axios from "axios";
 import SubmitCodeConfirm from "./Modal/SubmitCodeConfirm";
+import { useAuth } from "../context/AuthContext";
 
 const languages = Object.entries(language_versions);
 
 const CodeEditor = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [value, setValue] = useState(code_snippets["cpp"]);
+    const [value, setValue] = useState("");
     const [language, setLanguage] = useState("cpp");
     const [input, setInput] = useState("");
     const [output, setOutput] = useState("");
@@ -21,18 +22,18 @@ const CodeEditor = () => {
     const [loadingRunPublic, setLoadingRunPublic] = useState(false);
     const [loadingRunSubmit, setLoadingSubmit] = useState(false);
     const [error, setError] = useState("");
-    const { currentProblem, codeData, totalPoint, updatePoint, updateCodeData, updateCurrentProblem } = useCode();
 
+    const { currentProblem, codeData, totalPoint, updatePoint, updateCurrentProblem } = useCode();
+    const { user } = useAuth();
     const editorRef = useRef();
 
     const handleOpenModal = () => {
         setIsModalOpen((prev) => !prev);
-    }
+    };
 
     const handleCloseModal = () => {
         setIsModalOpen((prev) => !prev);
-    }
-
+    };
 
     const onMount = (editor) => {
         editorRef.current = editor;
@@ -103,58 +104,83 @@ const CodeEditor = () => {
     const runTestCase = async (input, output, runningType) => {
         let inputCases = processData(input);
         let outputCases = processData(output);
-        let finalResult = true;
+
+        const testCases = inputCases.map((inputCase, index) => {
+            const expectedOutput = outputCases[index];
+            const sourceCode = editorRef.current.getValue();
+
+            if (!sourceCode) {
+                console.error("No source code provided.");
+                return Promise.resolve({
+                    index: index + 1,
+                    passed: false,
+                    message: "No source code provided."
+                });
+            }
+
+            return executeCode(sourceCode, language, inputCase)
+                .then(({ output: actualOutput, error }) => {
+                    if (error) {
+                        console.error("Error occurred while running the code:", error);
+                        return {
+                            index: index + 1,
+                            passed: false,
+                            message: error
+                        };
+                    }
+
+                    const passed = (actualOutput.trim() === expectedOutput.trim());
+                    if (!passed) {
+                        console.log(`Test case ${index + 1}: Failed`);
+                        console.log("Expected Output:", expectedOutput);
+                        console.log("Actual Output:", actualOutput);
+                    } else {
+                        console.log(`Test case ${index + 1}: Passed`);
+                    }
+
+                    return {
+                        index: index + 1,
+                        passed: passed
+                    };
+                })
+                .catch(error => {
+                    console.error("Error occurred while running the code:", error);
+                    return {
+                        index: index + 1,
+                        passed: false,
+                        message: "Error occurred while running the code."
+                    };
+                });
+        });
 
         try {
-            runningType === "submit" ? setLoadingSubmit(true) : setLoadingRunPublic(true);
-
-            let failedTestCases = [];
-            for (let i = 0; i < inputCases.length; i++) {
-                const inputCase = inputCases[i];
-                const expectedOutput = outputCases[i];
-                const sourceCode = editorRef.current.getValue();
-                if (!sourceCode) {
-                    console.error("No source code provided.");
-                    return;
-                }
-
-                const { output: actualOutput, error } = await executeCode(
-                    sourceCode,
-                    language,
-                    inputCase
-                );
-
-                if (error) {
-                    console.error("Error occurred while running the code:", error);
-                    setError(error);
-                    return;
-                }
-
-                if (actualOutput.trim() !== expectedOutput.trim()) {
-                    console.log(`Test case ${i + 1}: Failed`);
-                    finalResult = false;
-                    failedTestCases.push(i + 1);
-                    console.log("Expected Output:", expectedOutput);
-                    console.log("Actual Output:", actualOutput);
-                } else {
-                    console.log(`Test case ${i + 1}: Passed`);
-                }
-            }
-
-            if (finalResult) {
-                console.log("All test cases passed.");
-                runningType === "submit" ? updatePoint("correct") : null;
+            if (runningType === "submit") {
+                setLoadingSubmit(true);
             } else {
-                console.log("Some test cases failed:", failedTestCases.join(", "));
-                runningType === "submit" ? updatePoint("incorrect") : null;
+                setLoadingRunPublic(true);
             }
 
+            const results = await Promise.all(testCases);
+            const failedTestCases = results.filter(result => !result.passed).map(result => result.index);
+
+            if (failedTestCases.length === 0) {
+                console.log("All test cases passed.");
+                if (runningType === "submit") updatePoint("correct");
+            } else {
+                console.log(`Some test cases failed: ${failedTestCases.join(", ")}`);
+                if (runningType === "submit") updatePoint("incorrect");
+            }
         } catch (error) {
             console.error("An error occurred:", error);
         } finally {
-            runningType === "submit" ? setLoadingSubmit(false) : setLoadingRunPublic(false);
+            if (runningType === "submit") {
+                setLoadingSubmit(false);
+            } else {
+                setLoadingRunPublic(false);
+            }
         }
     };
+
 
     const runCustomCase = async () => {
         setLoadingRunCustom(true);
@@ -179,29 +205,37 @@ const CodeEditor = () => {
     };
 
     const handleRunSubmit = async () => {
-        try {
-            await runTestCase(
-                codeData[`test_${currentProblem}`].gen_input,
-                codeData[`test_${currentProblem}`].gen_output,
-                "submit"
-            );
-        } catch (error) {
-            console.error("An error occurred while submitting the code:", error);
-        }
+        setLoadingSubmit(true);
 
+        runTestCase(
+            codeData[`test_${currentProblem}`].gen_input,
+            codeData[`test_${currentProblem}`].gen_output,
+            "submit"
+        ).catch(error => {
+            console.error("An error occurred while submitting the code:", error);
+        });
         handleCloseModal();
         updateCurrentProblem();
-
     };
 
+    const handleSavePoint = async () => {
+        try {
+            await axios.post(`${rootAPI}/save-code-score`, {
+                user_id: user.id,
+                code_score: totalPoint,
+            });
+        } catch (error) {
+            console.error("An error occurred while saving the points:", error);
+        }
+    }
 
     useEffect(() => {
         console.log("TotalPoint updated:", totalPoint);
     }, [totalPoint]);
 
     useEffect(() => {
-        setValue(code_snippets[language])
-    }, [currentProblem])
+        setValue(code_snippets[language]);
+    }, [currentProblem]);
 
     return (
         <div className="flex flex-col gap-2">

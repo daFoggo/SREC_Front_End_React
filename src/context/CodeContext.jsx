@@ -10,7 +10,13 @@ export const useCode = () => {
 export const CodeProvider = ({ children }) => {
     const [codeData, setCodeData] = useState();
     const [totalPoint, setTotalPoint] = useState(0);
-    const [currentProblem, setCurrentProblem] = useState("1");
+    const [currentProblem, setCurrentProblem] = useState(() => {
+        return localStorage.getItem("currentProblem") || "1";
+    });
+
+    useEffect(() => {
+        localStorage.setItem("currentProblem", currentProblem);
+    }, [currentProblem]);
 
     const updatePoint = (result) => {
         setTotalPoint((prevTotalPoint) => result === "correct" ? prevTotalPoint + 1 : prevTotalPoint);
@@ -21,7 +27,11 @@ export const CodeProvider = ({ children }) => {
     }
 
     const updateCurrentProblem = () => {
-        setCurrentProblem((c) => (parseInt(c) + 1).toString());
+        setCurrentProblem((c) => {
+            const newProblem = (parseInt(c) + 1).toString();
+            localStorage.setItem("currentProblem", newProblem);
+            return newProblem;
+        });
     }
 
     return (

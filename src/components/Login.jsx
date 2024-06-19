@@ -64,7 +64,7 @@ const Login = () => {
 
     useEffect(() => {
         if (role === 'candidate') {
-            navigate('/code-problem');
+            navigate('/code-assessment');
         } else if (role === 'recruiter') {
             navigate('/cv-matching');
         }

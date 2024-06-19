@@ -6,6 +6,7 @@ import Login from '../components/Login';
 import SignUp from '../components/SignUp';
 import CVMatching from '../components/CVMatching.jsx';
 import CodeProblem from '../components/CodeProblem';
+import CodeResult from '../components/CodeResult.jsx';
 import PrivateRoute from './PrivateRoute';
 import Forbidden from '../components/Forbidden';
 import Layout from '../components/Layout.jsx';
@@ -17,12 +18,16 @@ const AppRoutes = () => {
 
     const getTitleFromPath = (pathname) => {
         switch (pathname) {
+            case routes.home:
+                return 'Home';
             case routes.login:
                 return 'Login';
             case routes.register:
                 return 'Registry';
             case routes.code_problem:
                 return 'Code Problem';
+            case routes.code_problem_result:
+                return 'Code Problem Result';
             case routes.cv_matching:
                 return 'CV Matching';
             case routes.forbidden:
@@ -46,7 +51,7 @@ const AppRoutes = () => {
                 <Route path={routes.login} element={<Login />} />
                 <Route path={routes.register} element={<SignUp />} />
                 <Route path={routes.forbidden} element={<Forbidden />} />
-                <Route path={routes.pageNotFound} element={<PageNotFound/>}></Route>
+                <Route path={routes.pageNotFound} element={<PageNotFound />}></Route>
 
                 <Route path={routes.home} element={<Home />} />
                 <Route element={<Layout />}>
@@ -54,10 +59,23 @@ const AppRoutes = () => {
                         path={routes.code_problem}
                         element={
                             <PrivateRoute requiredRole="candidate">
-                                <CodeProblem /> 
+                                <CodeProblem />
                             </PrivateRoute>
                         }
-                    />
+                    >
+                    </Route>
+
+                    <Route
+                        path={routes.code_problem_result}
+                        element={
+                            <PrivateRoute requiredRole="candidate">
+                                <CodeResult />
+                            </PrivateRoute>
+                        }
+                    >
+                    </Route>
+
+
                     <Route
                         path={routes.cv_matching}
                         element={

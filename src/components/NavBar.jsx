@@ -18,6 +18,7 @@ import MenuItem from "@mui/material/MenuItem";
 import AdbIcon from "@mui/icons-material/Adb";
 
 import {navLists, userDropdown} from "../constants";
+import {logo} from "../utils";
 
 const NavBar = () => {
   const [anchorElNav, setAnchorElNav] = useState(null);
@@ -62,30 +63,7 @@ const NavBar = () => {
     >
       <Container maxWidth="xl">
         <Toolbar disableGutters>
-          <AdbIcon
-            sx={{
-              display: {xs: "none", md: "flex", color: "inherit"},
-              mr: 1,
-              fontSize: 24,
-            }}
-          />
-          <Typography
-            variant="h5"
-            noWrap
-            component="a"
-            sx={{
-              mr: 2,
-              display: {xs: "none", md: "flex"},
-              fontFamily: "Space Grotesk, sans-serif",
-              fontWeight: "bold",
-              color: "inherit",
-              textDecoration: "none",
-              cursor: "pointer",
-            }}
-            onClick={handleBackToHome}
-          >
-            SREC
-          </Typography>
+        <img src={logo} alt="" width="120" className="cursor-pointer" onClick={handleBackToHome}/>
 
           <Box sx={{flexGrow: 1, display: {xs: "flex", md: "none"}}}>
             <IconButton

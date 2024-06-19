@@ -79,7 +79,7 @@ const SignUp = () => {
 
   useEffect(() => {
     if (tokenRole === "candidate") {
-      navigate("/code-problem");
+      navigate("/code-assessment");
     } else if (tokenRole === "recruiter") {
       navigate("/cv-matching");
     }
