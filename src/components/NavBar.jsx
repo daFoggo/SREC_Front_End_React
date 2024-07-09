@@ -63,8 +63,6 @@ const NavBar = () => {
     >
       <Container maxWidth="xl">
         <Toolbar disableGutters>
-        <img src={logo} alt="" width="120" className="cursor-pointer" onClick={handleBackToHome}/>
-
           <Box sx={{flexGrow: 1, display: {xs: "flex", md: "none"}}}>
             <IconButton
               size="large"
@@ -103,7 +101,7 @@ const NavBar = () => {
               ))}
             </Menu>
           </Box>
-          <AdbIcon sx={{display: {xs: "flex", md: "none"}, mr: 1}} />
+          <img src={logo} alt="" width="50" className="cursor-pointer" onClick={handleBackToHome} sx={{display: {xs: "flex", md: "none"}, mr: 1}}/>
           <Typography
             variant="h5"
             noWrap
@@ -117,7 +115,7 @@ const NavBar = () => {
               textDecoration: "none",
             }}
           >
-            SREC
+            S-REC
           </Typography>
           <Box sx={{flexGrow: 1, display: {xs: "none", md: "flex"}}}>
             {navLists.map((category) => (
