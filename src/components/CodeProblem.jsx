@@ -78,7 +78,6 @@ const CodeProblem = () => {
           <p>Difficulty: {difficulty}</p>
           <p>Time limit: {timeLimit}</p>
           <p>Memory limit: {memoryLimit}</p>
-          <p>Source: {source}</p>
 
           <h1 className="text-md font-bold mt-5">Problem statement :</h1>
           <pre className="code-pre">{statement}</pre>

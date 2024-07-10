@@ -7,6 +7,7 @@ const routes = {
     cv_matching: '/cv-matching',
     forbidden: '/forbidden',
     pageNotFound: '/page-not-found',
+    virtual_interview: '/virtual-interview',
 }
 
 export default routes;

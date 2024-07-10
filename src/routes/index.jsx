@@ -1,17 +1,18 @@
-import { Routes, Route, useLocation, Navigate } from 'react-router-dom';
-import { Helmet, HelmetProvider } from 'react-helmet-async';
-import routes from './routeConfig';
+import { Routes, Route, useLocation, Navigate } from "react-router-dom";
+import { Helmet, HelmetProvider } from "react-helmet-async";
+import routes from "./routeConfig";
 
-import Login from '../components/Login';
-import SignUp from '../components/SignUp';
-import CVMatching from '../components/CVMatching.jsx';
-import CodeProblem from '../components/CodeProblem';
-import CodeResult from '../components/CodeResult.jsx';
-import PrivateRoute from './PrivateRoute';
-import Forbidden from '../components/Forbidden';
-import Layout from '../components/Layout.jsx';
-import Home from '../components/Home';
-import PageNotFound from '../components/PageNotFound';
+import Login from "../components/Login";
+import SignUp from "../components/SignUp";
+import CVMatching from "../components/CVMatching.jsx";
+import CodeProblem from "../components/CodeProblem";
+import CodeResult from "../components/CodeResult.jsx";
+import VirtualInterview from "../components/VirtualInterview.jsx";
+import PrivateRoute from "./PrivateRoute";
+import Forbidden from "../components/Forbidden";
+import Layout from "../components/Layout.jsx";
+import Home from "../components/Home";
+import PageNotFound from "../components/PageNotFound";
 
 const AppRoutes = () => {
     const location = useLocation();
@@ -19,21 +20,21 @@ const AppRoutes = () => {
     const getTitleFromPath = (pathname) => {
         switch (pathname) {
             case routes.home:
-                return 'Home';
+                return "Home";
             case routes.login:
-                return 'Login';
+                return "Login";
             case routes.register:
-                return 'Registry';
+                return "Registry";
             case routes.code_problem:
-                return 'Code Problem';
+                return "Code Problem";
             case routes.code_problem_result:
-                return 'Code Problem Result';
+                return "Code Problem Result";
             case routes.cv_matching:
-                return 'CV Matching';
+                return "CV Matching";
             case routes.forbidden:
-                return 'Access Denied';
+                return "Access Denied";
             default:
-                return 'Page Not Found';
+                return "Page Not Found";
         }
     };
 
@@ -54,6 +55,7 @@ const AppRoutes = () => {
                 <Route path={routes.pageNotFound} element={<PageNotFound />}></Route>
 
                 <Route path={routes.home} element={<Home />} />
+
                 <Route element={<Layout />}>
                     <Route
                         path={routes.code_problem}
@@ -62,8 +64,7 @@ const AppRoutes = () => {
                                 <CodeProblem />
                             </PrivateRoute>
                         }
-                    >
-                    </Route>
+                    ></Route>
 
                     <Route
                         path={routes.code_problem_result}
@@ -72,9 +73,16 @@ const AppRoutes = () => {
                                 <CodeResult />
                             </PrivateRoute>
                         }
-                    >
-                    </Route>
+                    ></Route>
 
+                    <Route
+                        path={routes.virtual_interview}
+                        element={
+                            <PrivateRoute requiredRole="candidate">
+                                <VirtualInterview />
+                            </PrivateRoute>
+                        }
+                    />
 
                     <Route
                         path={routes.cv_matching}
@@ -86,7 +94,10 @@ const AppRoutes = () => {
                     />
                 </Route>
 
-                <Route path="*" element={<Navigate to={routes.pageNotFound} replace />} />
+                <Route
+                    path="*"
+                    element={<Navigate to={routes.pageNotFound} replace />}
+                />
             </Routes>
         </div>
     );
