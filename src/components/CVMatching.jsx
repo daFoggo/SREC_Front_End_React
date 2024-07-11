@@ -1,5 +1,10 @@
 import { DataGrid } from "@mui/x-data-grid";
 import { Button } from '@mui/material';
+import { useState } from "react";
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import JobDescriptionModal from "./Modal/JobDescriptionModal";
+import CandidateModal from "./Modal/CandidateModal";
+import { useMediaQuery, useTheme } from '@mui/material';
 
 const jobDescriptions = {
   name: "IT Security and Compliance Deputy Manager",
@@ -556,29 +561,70 @@ const rowsData = {
   "Alamelu Subramanian": ["j2ee, BPM, Oracle BPM", 0.33734442033768075],
   "JOHN GUY": [0.07483855385396566],
 };
-const columns = [
-  { field: "id", headerName: "ID", flex: 0.5 },
-  { field: "name", headerName: "Name", flex: 1 },
-  { field: "skills", headerName: "Skills", flex: 1 },
-  { field: "degree", headerName: "Degree", flex: 1 },
-  { field: "major", headerName: "Major", flex: 1 },
-  { field: "matching_percent", headerName: "Matching percent", flex: 1 },
-];
 
-const rows = Object.keys(rowsData).map((key, index) => ({
-  id: index + 1,
-  name: key,
-  skills: rowsData[key][0],
-  degree: rowsData[key][1],
-  major: rowsData[key][2],
-  matching_percent: (rowsData[key][3] * 100).toFixed(2) + "%",
-}));
 
 const CVMatching = () => {
+  const theme = useTheme();
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
+
+  const [isJobModalOpen, setIsJobModalOpen] = useState(false);
+  const [isCandidateModalOpen, setIsCandidateModalOpen] = useState(false);
+
+  const handleOpenJobModal = () => {
+    setIsJobModalOpen((prev) => !prev);
+  };
+
+  const handleCloseJobModal = () => {
+    setIsJobModalOpen((prev) => !prev);
+  };
+
+  const handleOpenCandidateModal = () => {
+    setIsCandidateModalOpen((prev) => !prev);
+  }
+
+  const handleCloseCandidateModal = () => {
+    setIsCandidateModalOpen((prev) => !prev);
+  }
+
+  const columns = [
+    { field: "id", headerName: "ID", flex: isSmallScreen ? undefined : 0.5, width: isSmallScreen ? 70 : undefined },
+    { field: "name", headerName: "Name", flex: isSmallScreen ? undefined : 1, width: isSmallScreen ? 150 : undefined },
+    { field: "skills", headerName: "Skills", flex: isSmallScreen ? undefined : 1, width: isSmallScreen ? 150 : undefined },
+    { field: "degree", headerName: "Degree", flex: isSmallScreen ? undefined : 1, width: isSmallScreen ? 150 : undefined },
+    { field: "major", headerName: "Major", flex: isSmallScreen ? undefined : 1, width: isSmallScreen ? 150 : undefined },
+    { field: "matching_percent", headerName: "Matching percent", flex: isSmallScreen ? undefined : 1, width: isSmallScreen ? 150 : undefined },
+    {
+      field: "actions",
+      headerName: "Actions",
+      flex: isSmallScreen ? undefined : 1,
+      width: isSmallScreen ? 100 : undefined,
+      renderCell: (params) => (
+        <div>
+          <Button variant="text" onClick={handleOpenCandidateModal}>
+            <VisibilityIcon />
+          </Button>
+        </div>
+      ),
+    },
+  ];
+
+  const rows = Object.keys(rowsData).map((key, index) => ({
+    id: index + 1,
+    name: key,
+    skills: rowsData[key][0],
+    degree: rowsData[key][1],
+    major: rowsData[key][2],
+    matching_percent: (rowsData[key][3] * 100).toFixed(2) + "%",
+  }));
+
   return (
     <div className="p-2 sm:py-12 sm:px-36 bg-primary50">
       <p className="font-bold text-sm text-slate-500">Jobs</p>
-      <h1 className="font-bold text-2xl text-primary950 mb-5">{jobDescriptions.name}</h1>
+      <Button onClick={handleOpenJobModal} sx={{
+        marginBottom: 2,
+      }}>
+        <h1 className="font-bold text-2xl sm:text-4xl text-primary950 ">{jobDescriptions.name}</h1>
+      </Button>
       <DataGrid
         rows={rows}
         columns={columns}
@@ -605,6 +651,9 @@ const CVMatching = () => {
           padding: "5px",
         }}
       ></DataGrid>
+
+      <JobDescriptionModal isModalOpen={isJobModalOpen} handleCloseModal={handleCloseJobModal} jobDescriptionData={jobDescriptions}></JobDescriptionModal>
+      <CandidateModal isModalOpen={isCandidateModalOpen} handleCloseModal={handleCloseCandidateModal}></CandidateModal>
     </div>
   );
 };
