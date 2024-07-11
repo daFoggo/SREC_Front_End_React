@@ -7,8 +7,10 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        inter: ["Inter", "sans-serif"],
+        inter: ["Inter", "sans-serif",],
         spaceGrotesk: ["Space Grotesk", "sans-serif"],
+        satoshi: ["Satoshi", "sans-serif"],
+        clashDisplay: ["ClashDisplay", "sans-serif"],
       },
       colors: {
         primary50: "#eff8ff",

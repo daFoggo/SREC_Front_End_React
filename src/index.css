@@ -9,6 +9,13 @@
     box-sizing: border-box;
 }
 
+@font-face {
+    font-family: 'ClashDisplay';
+    src: url(../public/fonts/ClashDisplay-Semibold.otf);
+    font-weight: normal;
+    font-style: normal;
+}
+
 @layer utilities{
     .labelAndInput{
         @apply flex flex-col gap-1;

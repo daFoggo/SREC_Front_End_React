@@ -618,12 +618,12 @@ const CVMatching = () => {
   }));
 
   return (
-    <div className="p-2 sm:py-12 sm:px-36 bg-primary50">
+    <div className="p-2 sm:py-12 sm:px-36">
       <p className="font-bold text-sm text-slate-500">Jobs</p>
       <Button onClick={handleOpenJobModal} sx={{
         marginBottom: 2,
       }}>
-        <h1 className="font-bold text-2xl sm:text-4xl text-primary950 ">{jobDescriptions.name}</h1>
+        <h1 className="font-bold text-2xl sm:text-4xl text-primary950 text-left">{jobDescriptions.name}</h1>
       </Button>
       <DataGrid
         rows={rows}
