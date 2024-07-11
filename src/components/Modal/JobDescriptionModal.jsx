@@ -25,7 +25,7 @@ const JobDescriptionModal = ({ isModalOpen, handleCloseModal, jobDescriptionData
                     transform: "translate(-50%, -50%)",
                     width: isSmallScreen? "90%" : "50%",
                     height: isSmallScreen? "90%" : "auto",
-                    overflowY: "scroll",
+                    overflowY: "auto",
                     bgcolor: "background.paper",
                     borderRadius: "0.5rem",
                     boxShadow: 24,
@@ -35,9 +35,9 @@ const JobDescriptionModal = ({ isModalOpen, handleCloseModal, jobDescriptionData
                 }}
             >
                 <h1 className='font-bold text-sm text-slate-500'>Job descriptions</h1>
-                <h2 className="font-bold text-2xl text-primary950 mb-5 text-left">Job Title: {jobDescriptionData.name}</h2>
+                <h2 className="font-bold text-2xl text-primary950 mb-5 text-left pb-3 border-b-2">Job Title: {jobDescriptionData.name}</h2>
 
-                <div className='flex flex-col gap-5 mt-5'>
+                <div className='flex flex-col gap-5 mt-3'>
                     <TextField id="degree" label="Degree" value={jobDescriptionData.degree} multiline/>
                     <TextField id="major" label="Major" value={jobDescriptionData.major} multiline/>
                     <TextField id="hard_skills" label="Hard skills" value={jobDescriptionData.hard_skills} multiline/>

@@ -619,7 +619,7 @@ const CVMatching = () => {
 
   return (
     <div className="p-2 sm:py-12 sm:px-36">
-      <p className="font-bold text-sm text-slate-500">Jobs</p>
+      <p className="font-bold text-sm text-slate-500 pl-2">Jobs</p>
       <Button onClick={handleOpenJobModal} sx={{
         marginBottom: 2,
       }}>
