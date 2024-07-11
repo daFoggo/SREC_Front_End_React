@@ -1,5 +1,4 @@
 import { DataGrid } from "@mui/x-data-grid";
-import { Button } from '@mui/material';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import ForwardToInboxIcon from '@mui/icons-material/ForwardToInbox';
 import JobDescriptionModal from "./Modal/JobDescriptionModal";
@@ -10,12 +9,22 @@ import PageLoadingOverlay from "./PageLoadingOverlay";
 import { rootAPI } from '../utils/ip';
 import axios from 'axios';
 import { useCVMatching } from "../context/CVMatchingContext";
-import { mergeStateWithSortModel } from "@mui/x-data-grid/hooks/features/sorting/gridSortingUtils";
+import { Autocomplete, TextField, Button } from "@mui/material";
+import ConfirmModal from "./Modal/ConfirmModal";
 
 const CVMatching = () => {
   const { CVMatchingData = {}, jobDescriptionData, updateCVMatchingData, updateJobDescriptionData } = useCVMatching();
   const [loading, setLoading] = useState(true);
   const [selectedCandidate, setSelectedCandidate] = useState({});
+  const [selectedCandidateNumber, setSelectedCandidateNumber] = useState(0);
+  const [isJobModalOpen, setIsJobModalOpen] = useState(false);
+  const [isCandidateModalOpen, setIsCandidateModalOpen] = useState(false);
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  const [isEmailSent, setIsEmailSent] = useState(false);
+  const theme = useTheme();
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
+
+  const candidateNumbers = [1, 10, 50, 100, 500, 1000];
 
   useEffect(() => {
     getCVMatchingData();
@@ -36,11 +45,14 @@ const CVMatching = () => {
     }
   };
 
-  const theme = useTheme();
-  const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
+  const handleSendEmail = async () => {
+    console.log("Sent email to", selectedCandidateNumber, "candidates");
+  }
 
-  const [isJobModalOpen, setIsJobModalOpen] = useState(false);
-  const [isCandidateModalOpen, setIsCandidateModalOpen] = useState(false);
+
+  const handleNumberChange = (event) => {
+    setSelectedCandidateNumber(event.target.value);
+  };
 
   const handleOpenJobModal = () => {
     setIsJobModalOpen((prev) => !prev);
@@ -58,6 +70,14 @@ const CVMatching = () => {
   const handleCloseCandidateModal = () => {
     setSelectedCandidate({})
     setIsCandidateModalOpen((prev) => !prev);
+  };
+
+  const handleOpenConfirmModal = () => {
+    setIsConfirmModalOpen((prev) => !prev);
+  };
+
+  const handleCloseConfirmModal = () => {
+    setIsConfirmModalOpen((prev) => !prev);
   };
 
   const rows = Object.keys(CVMatchingData).map((key, index) => ({
@@ -96,13 +116,6 @@ const CVMatching = () => {
     },
   ];
 
-  const sortModel = [
-    {
-      field: 'matching_percent',
-      sort: 'desc',
-    },
-  ];
-
   if (loading) return <PageLoadingOverlay />;
 
   return (
@@ -126,24 +139,44 @@ const CVMatching = () => {
         pageSizeOptions={[10]}
         getCellClassName={(params) => {
           if (params.field === "matching_percent") {
-            const percentValue = parseFloat(params.value.replace("%", ""));
-            if (percentValue >= 50) {
-              return "text-blue-500 font-bold";
-            } else if (percentValue < 50) {
-              return "text-red-500 font-bold";
-            }
+            return "text-blue-500 font-bold";
           }
         }}
-        sortModel={sortModel}
-        onSortModelChange={(newModel) => mergeStateWithSortModel(newModel, sortModel)}
         sx={{
           backgroundColor: "white",
           padding: "5px",
         }}
       ></DataGrid>
 
+      <div className="flex gap-5 mt-5 w-full sm:w-1/4">
+        <Autocomplete
+          value={selectedCandidateNumber}
+          onChange={handleNumberChange}
+          options={candidateNumbers}
+          freeSolo
+          renderInput={(params) => (
+            <TextField {...params} label="Select number of candidate" variant="filled" />
+          )}
+          sx={{
+            flex: 1,
+          }}
+        />
+        <button className="bg-primary500 hover:bg-primary600 text-white font-semibold rounded-lg py-2 px-5" onClick={handleOpenConfirmModal}>
+          Send email
+        </button>
+      </div>
+
       <JobDescriptionModal isModalOpen={isJobModalOpen} handleCloseModal={handleCloseJobModal} jobDescriptionData={jobDescriptionData}></JobDescriptionModal>
       <CandidateModal isModalOpen={isCandidateModalOpen} handleCloseModal={handleCloseCandidateModal} candidateData={selectedCandidate}></CandidateModal>
+      <ConfirmModal
+        isModalOpen={isConfirmModalOpen}
+        handleCloseModal={handleCloseConfirmModal}
+        modalTitle="Are you sure want to send the emails"
+        modalDescription={`The email which include account information will be sent to ${selectedCandidateNumber} candidates.`}
+        loadingRunSubmit={isEmailSent}
+        handleRunSubmit={handleSendEmail}
+        >
+      </ConfirmModal>
     </div>
   );
 };

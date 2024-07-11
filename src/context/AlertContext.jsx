@@ -12,7 +12,6 @@ export const AlertProvider = ({ children }) => {
 
     const showAlert = (alert) => {
         setAlerts([...alerts, { ...alert, id: new Date().getTime() }])
-        console.log(alerts);
     }
 
     const hideAlert = (id) => {

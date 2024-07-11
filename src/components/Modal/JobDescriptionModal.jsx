@@ -9,7 +9,6 @@ import { useMediaQuery, useTheme } from '@mui/material';
 const JobDescriptionModal = ({ isModalOpen, handleCloseModal, jobDescriptionData }) => {
     const theme = useTheme();
     const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
-    console.log(Object.keys(jobDescriptionData))
 
     return (
         <Modal

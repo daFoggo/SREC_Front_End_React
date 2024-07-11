@@ -7,7 +7,7 @@ import { CircularProgress } from "@mui/material";
 import { useCode } from "../context/CodeContext";
 import processData from "../utils/processInputOutput";
 import axios from "axios";
-import SubmitCodeConfirm from "./Modal/SubmitCodeConfirm";
+import ConfirmModal from "./Modal/ConfirmModal";
 import { useAuth } from "../context/AuthContext";
 
 const languages = Object.entries(language_versions);
@@ -328,7 +328,7 @@ const CodeEditor = () => {
                 </button>
             </div>
 
-            <SubmitCodeConfirm isModalOpen={isModalOpen} handleCloseModal={handleCloseModal} handleRunSubmit={handleRunSubmit} loadingRunSubmit={loadingRunSubmit} />
+            <ConfirmModal isModalOpen={isModalOpen} handleCloseModal={handleCloseModal} handleRunSubmit={handleRunSubmit} loadingRunSubmit={loadingRunSubmit} />
         </div>
     );
 };
