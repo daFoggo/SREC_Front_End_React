@@ -9,6 +9,7 @@ import { useMediaQuery, useTheme } from '@mui/material';
 const JobDescriptionModal = ({ isModalOpen, handleCloseModal, jobDescriptionData }) => {
     const theme = useTheme();
     const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
+    console.log(Object.keys(jobDescriptionData))
 
     return (
         <Modal
@@ -35,16 +36,15 @@ const JobDescriptionModal = ({ isModalOpen, handleCloseModal, jobDescriptionData
                 }}
             >
                 <h1 className='font-bold text-sm text-slate-500'>Job descriptions</h1>
-                <h2 className="font-bold text-2xl text-primary950 mb-5 text-left pb-3 border-b-2">Job Title: {jobDescriptionData.name}</h2>
+                <h2 className="font-bold text-2xl text-primary950 mb-5 text-left pb-3 border-b-2">Job Title: {Object.keys(jobDescriptionData)[0]}</h2>
 
                 <div className='flex flex-col gap-5 mt-3'>
-                    <TextField id="degree" label="Degree" value={jobDescriptionData.degree} multiline/>
-                    <TextField id="major" label="Major" value={jobDescriptionData.major} multiline/>
-                    <TextField id="hard_skills" label="Hard skills" value={jobDescriptionData.hard_skills} multiline/>
-                    <TextField id="soft_skills" label="Soft skills" value={jobDescriptionData.soft_skills} multiline/>
-                    <TextField id="language" label="Language" value={jobDescriptionData.language} multiline/>
-                    <TextField id="certificate" label="Certificate" value={jobDescriptionData.certificate} multiline/>
-                    <TextField id="experience" label="Experience" value={jobDescriptionData.experience} multiline/>
+                    <TextField id="academic" label="Academic" value={jobDescriptionData[Object.keys(jobDescriptionData)[0]].academic} multiline/>
+                    <TextField id="certificate" label="Certificate" value={jobDescriptionData[Object.keys(jobDescriptionData)[0]].certificate} multiline/>
+                    <TextField id="experience" label="Experience" value={jobDescriptionData[Object.keys(jobDescriptionData)[0]].experience} multiline/>
+                    <TextField id="major" label="Major" value={jobDescriptionData[Object.keys(jobDescriptionData)[0]].major} multiline/>
+                    <TextField id="skills" label="Skills" value={jobDescriptionData[Object.keys(jobDescriptionData)[0]].skills} multiline/>
+
                 </div>
 
                 <div className="flex gap-3 mt-5 self-end">
