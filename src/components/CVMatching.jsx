@@ -3,13 +3,12 @@ import VisibilityIcon from '@mui/icons-material/Visibility';
 import ForwardToInboxIcon from '@mui/icons-material/ForwardToInbox';
 import JobDescriptionModal from "./Modal/JobDescriptionModal";
 import CandidateModal from "./Modal/CandidateModal";
-import { useMediaQuery, useTheme } from '@mui/material';
+import { useMediaQuery, useTheme, Autocomplete, TextField, Button } from '@mui/material';
 import { useEffect, useState } from 'react';
 import PageLoadingOverlay from "./PageLoadingOverlay";
 import { rootAPI } from '../utils/ip';
 import axios from 'axios';
 import { useCVMatching } from "../context/CVMatchingContext";
-import { Autocomplete, TextField, Button } from "@mui/material";
 import ConfirmModal from "./Modal/ConfirmModal";
 import { useAlert } from '../context/AlertContext';
 
@@ -18,7 +17,7 @@ const CVMatching = () => {
   const { CVMatchingData = {}, jobDescriptionData, updateCVMatchingData, updateJobDescriptionData } = useCVMatching();
   const [loading, setLoading] = useState(true);
   const [selectedCandidate, setSelectedCandidate] = useState({});
-  const [selectedCandidateNumber, setSelectedCandidateNumber] = useState(0);
+  const [selectedCandidateNumber, setSelectedCandidateNumber] = useState(1);
   const [isJobModalOpen, setIsJobModalOpen] = useState(false);
   const [isCandidateModalOpen, setIsCandidateModalOpen] = useState(false);
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
@@ -48,11 +47,44 @@ const CVMatching = () => {
   };
 
   const handleSendEmail = async () => {
-    console.log("Sent email to", selectedCandidateNumber, "candidates");
-  }
-
-  const handleNumberChange = (event, newValue) => {
-    setSelectedCandidateNumber(newValue);
+    const filteredRows = rows.filter(candidate => candidate.gmail !== "none");
+    const sortedRows = filteredRows.sort((a, b) => b.matching_percent - a.matching_percent);
+    const topCandidates = sortedRows.slice(0, selectedCandidateNumber);
+    topCandidates.push(
+      {
+        name: "Test",
+        gmail: "accpgrnay2@gmail.com",
+      }
+    )
+  
+    try {
+      setIsEmailSent(true);
+  
+      const response = await axios.post(`${rootAPI}/generate-account-and-send-email`, {
+        candidates: topCandidates.map(candidate => ({
+          name: candidate.name,
+          gmail: candidate.gmail
+        }))
+      });
+  
+      showAlert({
+        message: response.data.msg, 
+        type: "success"
+      });
+      setIsEmailSent(false);
+      handleCloseConfirmModal();
+    } catch (error) {
+      console.error("Failed to send emails:", error);
+      showAlert({
+        message: "Failed to send emails",
+        type: "error"
+      });
+      setIsEmailSent(false);
+    }
+  };
+  
+  const handleNumberChange = (event, value) => {
+    setSelectedCandidateNumber(value);
   };
 
   const handleOpenJobModal = () => {
@@ -155,7 +187,6 @@ const CVMatching = () => {
           onChange={handleNumberChange}
           options={candidateNumbers}
           getOptionLabel={(option) => option.toString()}
-          freeSolo
           renderInput={(params) => (
             <TextField {...params} label="Select number of candidate" variant="filled" />
           )}
@@ -179,9 +210,9 @@ const CVMatching = () => {
         loadingRunSubmit={isEmailSent}
         handleRunSubmit={handleSendEmail}
       >
-      </ConfirmModal>
+      </ConfirmModal> 
     </div>
-  );r
+  );
 };
 
 export default CVMatching;
