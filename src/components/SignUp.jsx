@@ -26,11 +26,10 @@ const SignUp = () => {
   const { role: tokenRole } = useAuth();
   const { showAlert } = useAlert();
 
-  const [first_name, setFirstName] = useState("");
-  const [last_name, setLastName] = useState("");
+  const [fullName, setFullName] = useState("");
   const [role, setRole] = useState("candidate");
   const [job_level, setJobLevel] = useState("junior");
-  const [email, setEmail] = useState("");
+  const [userName, setUserName] = useState("");
   const [password, setPassword] = useState("");
   const [confirm_password, setConfirmPassword] = useState("");
   const [msg, setMsg] = useState("");
@@ -38,7 +37,7 @@ const SignUp = () => {
   const [showJobLevel, setShowJobLevel] = useState(false);
 
   const handleRegister = async () => {
-    if (!first_name || !last_name || !email || !password || !confirm_password) {
+    if (!fullName || !userName || !password || !confirm_password) {
       setMsg("Please fill all the fields");
       return;
     } else if (password !== confirm_password) {
@@ -50,11 +49,10 @@ const SignUp = () => {
 
     try {
       await axios.post(`${rootAPI}/register`, {
-        first_name,
-        last_name,
+        fullName,
         role,
         job_level,
-        email,
+        userName,
         password,
         confirm_password,
       });
@@ -200,11 +198,11 @@ const SignUp = () => {
             </div>
 
             <TextField
-              label="Email"
+              label="User Name"
               variant="outlined"
               type="text"
-              placeholder="Email"
-              onChange={(e) => setEmail(e.target.value)}
+              placeholder="User Name"
+              onChange={(e) => setUserName(e.target.value)}
             />
             <TextField
               label="Password"

@@ -1,7 +1,7 @@
 const routes = {
     home: '/',
     login: '/login',
-    register: '/register',
+    // register: '/register',
     code_problem: '/code-assessment',
     code_problem_result: '/code-assessment/result',
     cv_matching: '/cv-matching',

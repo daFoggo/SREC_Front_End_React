@@ -23,7 +23,7 @@ const Login = () => {
     const { saveTokenAndUserData, role } = useAuth();
     const { showAlert } = useAlert();
 
-    const [email, setEmail] = useState('');
+    const [userName, setUserName] = useState('');
     const [password, setPassword] = useState('');
     const [msg, setMsg] = useState('');
     const [loading, setLoading] = useState(false);
@@ -31,7 +31,7 @@ const Login = () => {
     const handleLogin = async (e) => {
         e.preventDefault();
 
-        if (!email || !password) {
+        if (!userName || !password) {
             setMsg('Please fill in all fields');
             return;
         } else {
@@ -39,7 +39,7 @@ const Login = () => {
 
             try {
                 const response = await axios.post(`${rootAPI}/login`, {
-                    email,
+                    userName,
                     password,
                 });
 
@@ -78,7 +78,7 @@ const Login = () => {
                         <Typography variant="h3" sx={{ fontWeight: 'bold' }}>
                             Login
                         </Typography>
-                        <Typography variant="body2">
+                        {/* <Typography variant="body2">
                             Don&apos;t have an account?{' '}
                             <Link
                                 href="/register"
@@ -92,16 +92,16 @@ const Login = () => {
                             >
                                 Sign Up
                             </Link>
-                        </Typography>
+                        </Typography> */}
                     </div>
 
                     <div className="mt-24 flex flex-col gap-5">
                         <TextField
-                            label="Email"
+                            label="User name"
                             variant="outlined"
                             type="text"
-                            placeholder="Email"
-                            onChange={(e) => setEmail(e.target.value)}
+                            placeholder="User name"
+                            onChange={(e) => setUserName(e.target.value)}
                         />
 
                         <TextField

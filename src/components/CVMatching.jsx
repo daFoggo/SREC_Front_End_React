@@ -11,8 +11,10 @@ import axios from 'axios';
 import { useCVMatching } from "../context/CVMatchingContext";
 import { Autocomplete, TextField, Button } from "@mui/material";
 import ConfirmModal from "./Modal/ConfirmModal";
+import { useAlert } from '../context/AlertContext';
 
 const CVMatching = () => {
+  const { showAlert } = useAlert();
   const { CVMatchingData = {}, jobDescriptionData, updateCVMatchingData, updateJobDescriptionData } = useCVMatching();
   const [loading, setLoading] = useState(true);
   const [selectedCandidate, setSelectedCandidate] = useState({});
@@ -49,9 +51,8 @@ const CVMatching = () => {
     console.log("Sent email to", selectedCandidateNumber, "candidates");
   }
 
-
-  const handleNumberChange = (event) => {
-    setSelectedCandidateNumber(event.target.value);
+  const handleNumberChange = (event, newValue) => {
+    setSelectedCandidateNumber(newValue);
   };
 
   const handleOpenJobModal = () => {
@@ -153,6 +154,7 @@ const CVMatching = () => {
           value={selectedCandidateNumber}
           onChange={handleNumberChange}
           options={candidateNumbers}
+          getOptionLabel={(option) => option.toString()}
           freeSolo
           renderInput={(params) => (
             <TextField {...params} label="Select number of candidate" variant="filled" />
@@ -168,6 +170,7 @@ const CVMatching = () => {
 
       <JobDescriptionModal isModalOpen={isJobModalOpen} handleCloseModal={handleCloseJobModal} jobDescriptionData={jobDescriptionData}></JobDescriptionModal>
       <CandidateModal isModalOpen={isCandidateModalOpen} handleCloseModal={handleCloseCandidateModal} candidateData={selectedCandidate}></CandidateModal>
+
       <ConfirmModal
         isModalOpen={isConfirmModalOpen}
         handleCloseModal={handleCloseConfirmModal}
@@ -175,10 +178,10 @@ const CVMatching = () => {
         modalDescription={`The email which include account information will be sent to ${selectedCandidateNumber} candidates.`}
         loadingRunSubmit={isEmailSent}
         handleRunSubmit={handleSendEmail}
-        >
+      >
       </ConfirmModal>
     </div>
-  );
+  );r
 };
 
 export default CVMatching;

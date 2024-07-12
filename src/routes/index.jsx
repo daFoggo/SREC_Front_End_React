@@ -50,7 +50,7 @@ const AppRoutes = () => {
 
             <Routes>
                 <Route path={routes.login} element={<Login />} />
-                <Route path={routes.register} element={<SignUp />} />
+                {/* <Route path={routes.register} element={<SignUp />} /> */}
                 <Route path={routes.forbidden} element={<Forbidden />} />
                 <Route path={routes.pageNotFound} element={<PageNotFound />}></Route>
 

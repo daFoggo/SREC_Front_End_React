@@ -143,8 +143,8 @@ const NavBar = () => {
             <Tooltip title="Open settings">
               <IconButton onClick={handleOpenUserMenu} sx={{p: 0}}>
                 <Avatar sx={{backgroundColor: "white"}}>
-                  {user && user.sub && user.sub.first_name
-                    ? user.sub.first_name[0]
+                  {user && user.sub && user.sub.full_name
+                    ? user.sub.full_name[0]
                     : ""}
                 </Avatar>
               </IconButton>
