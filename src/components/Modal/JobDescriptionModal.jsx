@@ -35,15 +35,14 @@ const JobDescriptionModal = ({ isModalOpen, handleCloseModal, jobDescriptionData
                 }}
             >
                 <h1 className='font-bold text-sm text-slate-500'>Job descriptions</h1>
-                <h2 className="font-bold text-2xl text-primary950 mb-5 text-left pb-3 border-b-2">Job Title: {Object.keys(jobDescriptionData)[0]}</h2>
+                <h2 className="font-bold text-2xl text-primary950 mb-5 text-left pb-3 border-b-2">{jobDescriptionData.title}</h2>
 
                 <div className='flex flex-col gap-5 mt-3'>
-                    <TextField id="academic" label="Academic" value={jobDescriptionData[Object.keys(jobDescriptionData)[0]].academic} multiline/>
-                    <TextField id="certificate" label="Certificate" value={jobDescriptionData[Object.keys(jobDescriptionData)[0]].certificate} multiline/>
-                    <TextField id="experience" label="Experience" value={jobDescriptionData[Object.keys(jobDescriptionData)[0]].experience} multiline/>
-                    <TextField id="major" label="Major" value={jobDescriptionData[Object.keys(jobDescriptionData)[0]].major} multiline/>
-                    <TextField id="skills" label="Skills" value={jobDescriptionData[Object.keys(jobDescriptionData)[0]].skills} multiline/>
-
+                    {jobDescriptionData.level ? <TextField id="level" label="Level" value={jobDescriptionData.level} multiline/> : null}
+                    {jobDescriptionData.skills ? <TextField id="skills" label="Skills" value={jobDescriptionData.skills} multiline/> : null}
+                    {jobDescriptionData.academic ? <TextField id="academic" label="Academic" value={jobDescriptionData.academic} multiline/> : null}
+                    {jobDescriptionData.major ? <TextField id="major" label="Major" value={jobDescriptionData.major} multiline/> : null}
+                    {jobDescriptionData.certificate ? <TextField id="certificate" label="Certificate" value={jobDescriptionData.certificate} multiline/> : null}
                 </div>
 
                 <div className="flex gap-3 mt-5 self-end">

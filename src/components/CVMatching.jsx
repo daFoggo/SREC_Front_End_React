@@ -17,7 +17,7 @@ const CVMatching = () => {
   const { showAlert } = useAlert();
   const { CVMatchingData = {}, jobDescriptionData, updateCVMatchingData, updateJobDescriptionData } = useCVMatching();
   const [loading, setLoading] = useState(true);
-  const [selectedJob, setSelectedJob] = useState({});
+  const [selectedJobId, setSelectedJobId] = useState(0);
   const [selectedCandidate, setSelectedCandidate] = useState({});
   const [selectedCandidateNumber, setSelectedCandidateNumber] = useState(1);
   const [isJobModalOpen, setIsJobModalOpen] = useState(false);
@@ -32,12 +32,14 @@ const CVMatching = () => {
 
   useEffect(() => {
     getCVMatchingData();
-  }, []);
+  }, [selectedJobId]);
 
   const getCVMatchingData = async () => {
     try {
       setLoading(true);
-      const cvMatchingResponse = await axios.get(`${rootAPI}/cvs-matching`);
+      const cvMatchingResponse = await axios.post(`${rootAPI}/cvs-matching`, {
+        id: selectedJobId,
+      });
       updateCVMatchingData(cvMatchingResponse.data);
 
       const jobDescriptionResponse = await axios.get(`${rootAPI}/job-descriptions`);
@@ -155,8 +157,8 @@ const CVMatching = () => {
     setIsSelectJobDialogOpen(false);
   };
 
-  const handleJobSelect = (job) => {
-    setSelectedJob(job);
+  const handleSelectedJobId = (id) => {
+    setSelectedJobId(id);
     setIsSelectJobDialogOpen(false);
   };
 
@@ -210,7 +212,7 @@ const CVMatching = () => {
       <p className="font-bold text-sm text-slate-500 pl-2">Job</p>
       <div className="flex items-center text-center mb-2">
         <Button onClick={handleOpenJobModal}>
-          <h1 className="font-bold text-2xl sm:text-4xl text-primary950 text-left">{Object.keys(jobDescriptionData)[0]}</h1>
+          <h1 className="font-bold text-2xl sm:text-4xl text-primary950 text-left">{jobDescriptionData[selectedJobId].title}</h1>
         </Button>
         <Button onClick={handleOpenSelectJobDialog}>
           <ChangeCircleOutlinedIcon />
@@ -256,7 +258,7 @@ const CVMatching = () => {
         </button>
       </div>
 
-      <JobDescriptionModal isModalOpen={isJobModalOpen} handleCloseModal={handleCloseJobModal} jobDescriptionData={jobDescriptionData}></JobDescriptionModal>
+      <JobDescriptionModal isModalOpen={isJobModalOpen} handleCloseModal={handleCloseJobModal} jobDescriptionData={jobDescriptionData[selectedJobId]}></JobDescriptionModal>
       <CandidateModal isModalOpen={isCandidateModalOpen} handleCloseModal={handleCloseCandidateModal} candidateData={selectedCandidate}></CandidateModal>
 
       <ConfirmModal
@@ -268,7 +270,7 @@ const CVMatching = () => {
         handleRunSubmit={handleSendEmail}
       >
       </ConfirmModal>
-        
+
       {/* Select Job Dialog */}
       <Dialog open={isSelectJobDialogOpen} onClose={handleCloseSelectJobDialog}>
         <DialogTitle sx={{
@@ -278,11 +280,11 @@ const CVMatching = () => {
         }}>Select Job</DialogTitle>
         <DialogContent>
           <List>
-            {Object.keys(jobDescriptionData).map((job, index) => (
+            {jobDescriptionData.map((job, index) => (
               <ListItem key={index} disablePadding>
                 <p className="font-bold text-primary800">{index + 1}. </p>
-                <ListItemButton onClick={() => handleJobSelect(job)}>
-                   <ListItemText primary={job} />
+                <ListItemButton onClick={() => handleSelectedJobId(job.id) }>
+                  <ListItemText primary={job.title} />
                 </ListItemButton>
               </ListItem>
             ))}
