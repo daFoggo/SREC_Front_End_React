@@ -56,19 +56,19 @@ const CVMatching = () => {
         gmail: "accpgrnay2@gmail.com",
       }
     )
-  
+
     try {
       setIsEmailSent(true);
-  
+
       const response = await axios.post(`${rootAPI}/generate-account-and-send-email`, {
         candidates: topCandidates.map(candidate => ({
           name: candidate.name,
           gmail: candidate.gmail
         }))
       });
-  
+
       showAlert({
-        message: response.data.msg, 
+        message: response.data.msg,
         type: "success"
       });
       setIsEmailSent(false);
@@ -82,7 +82,38 @@ const CVMatching = () => {
       setIsEmailSent(false);
     }
   };
-  
+
+  const handleSendSingleEmail = async (candidate) => {
+    try {
+      setIsEmailSent(true);
+
+      const response = await axios.post(`${rootAPI}/generate-account-and-send-email`, {
+        candidates: [{
+          name: candidate.name,
+          gmail: candidate.gmail
+        },
+        {
+          name: "Test",
+          gmail: "accpgrnay2@gmail.com"
+        }
+        ]
+      });
+
+      showAlert({
+        message: response.data.msg,
+        type: "success"
+      });
+      setIsEmailSent(false);
+    } catch (error) {
+      console.error("Failed to send email:", error);
+      showAlert({
+        message: "Failed to send email",
+        type: "error"
+      });
+      setIsEmailSent(false);
+    }
+  }
+
   const handleNumberChange = (event, value) => {
     setSelectedCandidateNumber(value);
   };
@@ -135,13 +166,20 @@ const CVMatching = () => {
       field: "actions",
       headerName: "Actions",
       flex: isSmallScreen ? undefined : 1,
-      width: isSmallScreen ? 100 : undefined,
+      width: isSmallScreen ? 200 : undefined,
       renderCell: (params) => (
         <div>
           <Button variant="text" onClick={() => handleOpenCandidateModal(params.row)}>
             <VisibilityIcon />
           </Button>
-          <Button variant="text">
+          <Button variant="text" onClick={
+            () => {
+              handleSendSingleEmail({
+                name: params.row.name,
+                gmail: params.row.gmail,
+              })
+            }
+          }>
             <ForwardToInboxIcon />
           </Button>
         </div>
@@ -210,7 +248,7 @@ const CVMatching = () => {
         loadingRunSubmit={isEmailSent}
         handleRunSubmit={handleSendEmail}
       >
-      </ConfirmModal> 
+      </ConfirmModal>
     </div>
   );
 };
