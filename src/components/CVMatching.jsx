@@ -3,7 +3,7 @@ import VisibilityIcon from '@mui/icons-material/Visibility';
 import ForwardToInboxIcon from '@mui/icons-material/ForwardToInbox';
 import JobDescriptionModal from "./Modal/JobDescriptionModal";
 import CandidateModal from "./Modal/CandidateModal";
-import { useMediaQuery, useTheme, Autocomplete, TextField, Button } from '@mui/material';
+import { useMediaQuery, useTheme, Autocomplete, TextField, Button, Dialog, DialogTitle, DialogContent, DialogActions, List, ListItem, ListItemButton, ListItemText } from '@mui/material';
 import { useEffect, useState } from 'react';
 import PageLoadingOverlay from "./PageLoadingOverlay";
 import { rootAPI } from '../utils/ip';
@@ -11,16 +11,19 @@ import axios from 'axios';
 import { useCVMatching } from "../context/CVMatchingContext";
 import ConfirmModal from "./Modal/ConfirmModal";
 import { useAlert } from '../context/AlertContext';
+import ChangeCircleOutlinedIcon from '@mui/icons-material/ChangeCircleOutlined';
 
 const CVMatching = () => {
   const { showAlert } = useAlert();
   const { CVMatchingData = {}, jobDescriptionData, updateCVMatchingData, updateJobDescriptionData } = useCVMatching();
   const [loading, setLoading] = useState(true);
+  const [selectedJob, setSelectedJob] = useState({});
   const [selectedCandidate, setSelectedCandidate] = useState({});
   const [selectedCandidateNumber, setSelectedCandidateNumber] = useState(1);
   const [isJobModalOpen, setIsJobModalOpen] = useState(false);
   const [isCandidateModalOpen, setIsCandidateModalOpen] = useState(false);
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  const [isSelectJobDialogOpen, setIsSelectJobDialogOpen] = useState(false);
   const [isEmailSent, setIsEmailSent] = useState(false);
   const theme = useTheme();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
@@ -144,6 +147,19 @@ const CVMatching = () => {
     setIsConfirmModalOpen((prev) => !prev);
   };
 
+  const handleOpenSelectJobDialog = () => {
+    setIsSelectJobDialogOpen(true);
+  };
+
+  const handleCloseSelectJobDialog = () => {
+    setIsSelectJobDialogOpen(false);
+  };
+
+  const handleJobSelect = (job) => {
+    setSelectedJob(job);
+    setIsSelectJobDialogOpen(false);
+  };
+
   const rows = Object.keys(CVMatchingData).map((key, index) => ({
     id: index + 1,
     name: key,
@@ -192,11 +208,14 @@ const CVMatching = () => {
   return (
     <div className="p-2 sm:py-12 sm:px-36">
       <p className="font-bold text-sm text-slate-500 pl-2">Job</p>
-      <Button onClick={handleOpenJobModal} sx={{
-        marginBottom: 2,
-      }}>
-        <h1 className="font-bold text-2xl sm:text-4xl text-primary950 text-left">{Object.keys(jobDescriptionData)[0]}</h1>
-      </Button>
+      <div className="flex items-center text-center mb-2">
+        <Button onClick={handleOpenJobModal}>
+          <h1 className="font-bold text-2xl sm:text-4xl text-primary950 text-left">{Object.keys(jobDescriptionData)[0]}</h1>
+        </Button>
+        <Button onClick={handleOpenSelectJobDialog}>
+          <ChangeCircleOutlinedIcon />
+        </Button>
+      </div>
       <DataGrid
         rows={rows}
         columns={columns}
@@ -249,6 +268,30 @@ const CVMatching = () => {
         handleRunSubmit={handleSendEmail}
       >
       </ConfirmModal>
+        
+      {/* Select Job Dialog */}
+      <Dialog open={isSelectJobDialogOpen} onClose={handleCloseSelectJobDialog}>
+        <DialogTitle sx={{
+          fontSize: "1.5rem",
+          fontWeight: "bold",
+          color: "#052b4c"
+        }}>Select Job</DialogTitle>
+        <DialogContent>
+          <List>
+            {Object.keys(jobDescriptionData).map((job, index) => (
+              <ListItem key={index} disablePadding>
+                <p className="font-bold text-primary800">{index + 1}. </p>
+                <ListItemButton onClick={() => handleJobSelect(job)}>
+                   <ListItemText primary={job} />
+                </ListItemButton>
+              </ListItem>
+            ))}
+          </List>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseSelectJobDialog}>Cancel</Button>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 };
