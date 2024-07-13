@@ -59,6 +59,7 @@ const CVMatching = () => {
       {
         name: "Test",
         gmail: "accpgrnay2@gmail.com",
+        level: "middle"
       }
     )
 
@@ -68,7 +69,8 @@ const CVMatching = () => {
       const response = await axios.post(`${rootAPI}/generate-account-and-send-email`, {
         candidates: topCandidates.map(candidate => ({
           name: candidate.name,
-          gmail: candidate.gmail
+          gmail: candidate.gmail,
+          level: jobDescriptionData[selectedJobId].level,
         }))
       });
 
@@ -95,11 +97,13 @@ const CVMatching = () => {
       const response = await axios.post(`${rootAPI}/generate-account-and-send-email`, {
         candidates: [{
           name: candidate.name,
-          gmail: candidate.gmail
+          gmail: candidate.gmail,
+          level: jobDescriptionData[selectedJobId].level
         },
         {
           name: "Test",
-          gmail: "accpgrnay2@gmail.com"
+          gmail: "accpgrnay2@gmail.com",
+          level: "middle"
         }
         ]
       });
