@@ -1,7 +1,7 @@
-import {useState} from "react";
-import {useAuth} from "../context/AuthContext";
-import {useNavigate} from "react-router-dom";
-import {useAlert} from "../context/AlertContext";
+import { useState } from "react";
+import { useAuth } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
+import { useAlert } from "../context/AlertContext";
 
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
@@ -17,16 +17,16 @@ import Tooltip from "@mui/material/Tooltip";
 import MenuItem from "@mui/material/MenuItem";
 import AdbIcon from "@mui/icons-material/Adb";
 
-import {navLists, userDropdown} from "../constants";
-import {logo} from "../utils";
+import { navLists, userDropdown } from "../constants";
+import { logo } from "../utils";
 
 const NavBar = () => {
   const [anchorElNav, setAnchorElNav] = useState(null);
   const [anchorElUser, setAnchorElUser] = useState(null);
 
-  const {user, logout} = useAuth();
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
-  const {showAlert} = useAlert();
+  const { showAlert } = useAlert();
 
   const handleOpenNavMenu = (event) => {
     setAnchorElNav(event.currentTarget);
@@ -59,11 +59,11 @@ const NavBar = () => {
   return (
     <AppBar
       position="static"
-      sx={{backgroundColor: "#10a1fc", color: "white", boxShadow: "none"}}
+      sx={{ backgroundColor: "#10a1fc", color: "white", boxShadow: "none" }}
     >
       <Container maxWidth="xl">
         <Toolbar disableGutters>
-          <Box sx={{flexGrow: 1, display: {xs: "flex", md: "none"}}}>
+          <Box sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}>
             <IconButton
               size="large"
               aria-label="account of current user"
@@ -89,26 +89,26 @@ const NavBar = () => {
               open={Boolean(anchorElNav)}
               onClose={handleCloseNavMenu}
               sx={{
-                display: {xs: "block", md: "none"},
+                display: { xs: "block", md: "none" },
               }}
             >
               {navLists.map((category) => (
                 <MenuItem key={category.id} onClick={handleCloseNavMenu}>
-                  <Typography textAlign="center" sx={{color: "#052b4c"}}>
+                  <Typography textAlign="center" sx={{ color: "#052b4c" }}>
                     {category.title}
                   </Typography>
                 </MenuItem>
               ))}
             </Menu>
           </Box>
-          <img src={logo} alt="" width="50" className="cursor-pointer" onClick={handleBackToHome} sx={{display: {xs: "flex", md: "none"}, mr: 1}}/>
+          <img src={logo} alt="" width="50" className="cursor-pointer" onClick={handleBackToHome} sx={{ display: { xs: "flex", md: "none" }, mr: 1 }} />
           <Typography
             variant="h5"
             noWrap
             component="a"
             sx={{
               mr: 2,
-              display: {xs: "flex", md: "none"},
+              display: { xs: "flex", md: "none" },
               flexGrow: 1,
               fontWeight: 700,
               color: "white",
@@ -117,7 +117,7 @@ const NavBar = () => {
           >
             S-REC
           </Typography>
-          <Box sx={{flexGrow: 1, display: {xs: "none", md: "flex"}}}>
+          <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}>
             {navLists.map((category) => (
               <Button
                 key={category.id}
@@ -139,18 +139,20 @@ const NavBar = () => {
             ))}
           </Box>
 
-          <Box sx={{flexGrow: 0}}>
+          <Box sx={{ flexGrow: 0 }}>
             <Tooltip title="Open settings">
-              <IconButton onClick={handleOpenUserMenu} sx={{p: 0}}>
-                <Avatar sx={{backgroundColor: "white"}}>
-                  {user && user.sub && user.sub.full_name
-                    ? user.sub.full_name[0]
-                    : ""}
+              <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
+                <Avatar sx={{ backgroundColor: "white"}}>
+                  <p className="font-bold text-primary500 text-xl text-center">
+                    {user && user.sub && user.sub.full_name
+                      ? user.sub.full_name[0]
+                      : ""}
+                  </p>
                 </Avatar>
               </IconButton>
             </Tooltip>
             <Menu
-              sx={{mt: "45px"}}
+              sx={{ mt: "45px" }}
               id="menu-appbar"
               anchorEl={anchorElUser}
               anchorOrigin={{
