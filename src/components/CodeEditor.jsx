@@ -9,6 +9,7 @@ import processData from "../utils/processInputOutput";
 import axios from "axios";
 import ConfirmModal from "./Modal/ConfirmModal";
 import { useAuth } from "../context/AuthContext";
+import TestCaseResult from "./TestCaseResult";
 
 const languages = Object.entries(language_versions);
 
@@ -192,17 +193,17 @@ const CodeEditor = () => {
         setLoadingRunCustom(false);
     };
 
-    const handleRunPublic = async () => {
-        try {
-            await runTestCase(
-                codeData[`test_${currentProblem}`].public_input,
-                codeData[`test_${currentProblem}`].public_output,
-                "public"
-            );
-        } catch (error) {
-            console.error("An error occurred while running public test cases:", error);
-        }
-    };
+    // const handleRunPublic = async () => {
+    //     try {
+    //         await runTestCase(
+    //             codeData[`test_${currentProblem}`].public_input,
+    //             codeData[`test_${currentProblem}`].public_output,
+    //             "public"
+    //         );
+    //     } catch (error) {
+    //         console.error("An error occurred while running public test cases:", error);
+    //     }
+    // };
 
     const handleRunSubmit = async () => {
         setLoadingSubmit(true);
@@ -309,7 +310,7 @@ const CodeEditor = () => {
                     )}
                 </button>
 
-                <button
+                {/* <button
                     className="bg-white text-primary500 font-bold py-2 px-5 rounded-md hover:bg-slate-300 hover:text-primary950 duration-300 shadow-md"
                     onClick={handleRunPublic}
                 >
@@ -318,7 +319,7 @@ const CodeEditor = () => {
                     ) : (
                         "Run with test cases"
                     )}
-                </button>
+                </button> */}
 
                 <button
                     className="bg-primary500 text-white font-bold py-2 px-5 rounded-md hover:bg-primary600 duration-300 shadow-md shadow-blue-300"
@@ -326,6 +327,11 @@ const CodeEditor = () => {
                 >
                     Submit
                 </button>
+            </div>
+
+            {/* For test case results */}
+            <div className="flex fles-col gap-3">
+
             </div>
 
             <ConfirmModal isModalOpen={isModalOpen} handleCloseModal={handleCloseModal} handleRunSubmit={handleRunSubmit} loadingRunSubmit={loadingRunSubmit} />

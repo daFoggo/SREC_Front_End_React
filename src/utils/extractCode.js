@@ -1,6 +1,6 @@
 const extractSection = (pattern, text) => {
     const match = text.match(pattern);
-    return match ? match[1].trim() : "";
+    return match && match[1] ? match[1].trim() : null;
 }
 
 const convertDifficulty = (difficulty) => {

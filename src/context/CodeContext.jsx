@@ -8,34 +8,24 @@ export const useCode = () => {
 }
 
 export const CodeProvider = ({ children }) => {
-    const [codeData, setCodeData] = useState();
-    const [totalPoint, setTotalPoint] = useState(0);
-    const [currentProblem, setCurrentProblem] = useState(() => {
-        return localStorage.getItem("currentProblem") || "1";
-    });
+    const [assessmentData, setAssessmentData] = useState({});
+    const [currentProblem, setCurrentProblem] = useState(1);
+    const [problemData, setProblemData] = useState({});
 
-    useEffect(() => {
-        localStorage.setItem("currentProblem", currentProblem);
-    }, [currentProblem]);
-
-    const updatePoint = (result) => {
-        setTotalPoint((prevTotalPoint) => result === "correct" ? prevTotalPoint + 1 : prevTotalPoint);
+    const handleUpdateAssessmentData = (newAssessmentData) => {
+        setAssessmentData(newAssessmentData);
     }
 
-    const updateCodeData = (data) => {
-        setCodeData(data);
+    const handleUpdateCurrentProblem = (newCurrentProblem) => {
+        setCurrentProblem(newCurrentProblem);
     }
 
-    const updateCurrentProblem = () => {
-        setCurrentProblem((c) => {
-            const newProblem = (parseInt(c) + 1).toString();
-            localStorage.setItem("currentProblem", newProblem);
-            return newProblem;
-        });
-    }
+    const handleUpdateProblemData = (newProblemData) => {
+        setProblemData(newProblemData);
+    }   
 
     return (
-        <CodeContext.Provider value={{ codeData, totalPoint, currentProblem, updatePoint, updateCodeData, updateCurrentProblem }}>
+        <CodeContext.Provider value={{ assessmentData, currentProblem, problemData, handleUpdateAssessmentData, handleUpdateCurrentProblem, handleUpdateProblemData }}>
             {children}
         </CodeContext.Provider>
     );

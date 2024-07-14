@@ -15,7 +15,7 @@ import ChangeCircleOutlinedIcon from '@mui/icons-material/ChangeCircleOutlined';
 
 const CVMatching = () => {
   const { showAlert } = useAlert();
-  const { CVMatchingData = {}, jobDescriptionData, updateCVMatchingData, updateJobDescriptionData } = useCVMatching();
+  const { CVMatchingData = [], jobDescriptionData, updateCVMatchingData, updateJobDescriptionData } = useCVMatching();
   const [loading, setLoading] = useState(true);
   const [selectedJobId, setSelectedJobId] = useState(0);
   const [selectedCandidate, setSelectedCandidate] = useState({});
@@ -53,7 +53,7 @@ const CVMatching = () => {
 
   const handleSendEmail = async () => {
     const filteredRows = rows.filter(candidate => candidate.gmail !== "none");
-    const sortedRows = filteredRows.sort((a, b) => b.matching_percent - a.matching_percent);
+    const sortedRows = filteredRows.sort((a, b) => b.matching_point - a.matching_point);
     const topCandidates = sortedRows.slice(0, selectedCandidateNumber);
     topCandidates.push(
       {
@@ -166,24 +166,29 @@ const CVMatching = () => {
     setIsSelectJobDialogOpen(false);
   };
 
-  const rows = Object.keys(CVMatchingData).map((key, index) => ({
+  const rows = CVMatchingData ? CVMatchingData.map((candidate, index) => ({
     id: index + 1,
-    name: key,
-    academic: CVMatchingData[key].academic,
-    experience: CVMatchingData[key].experience,
-    gmail: CVMatchingData[key].gmail,
-    major: CVMatchingData[key].major,
-    skills: CVMatchingData[key].skills,
-    matching_percent: (CVMatchingData[key].cv_matching * 100).toFixed(2),
-  }));
+    name: candidate.name,
+    age: candidate.age,
+    personality: candidate.personality,
+    gmail: candidate.gmail,
+    academic: candidate.academic,
+    major: candidate.major,
+    experience: candidate.experience,
+    skills: candidate.skills,
+    language: candidate.language,
+    certificate: candidate.certificate,
+    matching_score: candidate.cv_matching * 100,
+  })) : [];
 
   const columns = [
     { field: "id", headerName: "ID", flex: isSmallScreen ? undefined : 0.5, width: isSmallScreen ? 70 : undefined },
     { field: "name", headerName: "Name", flex: isSmallScreen ? undefined : 1, width: isSmallScreen ? 150 : undefined },
-    { field: "experience", headerName: "Experience", flex: isSmallScreen ? undefined : 1, width: isSmallScreen ? 150 : undefined },
+    { field: "age", headerName: "Age", flex: isSmallScreen ? undefined : 1, width: isSmallScreen ? 150 : undefined },
     { field: "gmail", headerName: "Gmail", flex: isSmallScreen ? undefined : 1, width: isSmallScreen ? 150 : undefined },
     { field: "skills", headerName: "Skills", flex: isSmallScreen ? undefined : 1, width: isSmallScreen ? 150 : undefined },
-    { field: "matching_percent", headerName: "Matching Percent ( % )", type: "number", flex: isSmallScreen ? undefined : 1, width: isSmallScreen ? 150 : undefined },
+    { field: "certificate", headerName: "Certificate", flex: isSmallScreen ? undefined : 1, width: isSmallScreen ? 150 : undefined },
+    { field: "matching_score", headerName: "Matching Score", type: "number", flex: isSmallScreen ? undefined : 1, width: isSmallScreen ? 150 : undefined },
     {
       field: "actions",
       headerName: "Actions",
@@ -234,7 +239,7 @@ const CVMatching = () => {
         }}
         pageSizeOptions={[10]}
         getCellClassName={(params) => {
-          if (params.field === "matching_percent") {
+          if (params.field === "matching_point") {
             return "text-blue-500 font-bold";
           }
         }}

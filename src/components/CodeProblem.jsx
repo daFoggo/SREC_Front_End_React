@@ -11,40 +11,76 @@ import axios from "axios";
 import routes from "../routes/routeConfig";
 
 const CodeProblem = () => {
-  const { currentProblem, codeData, updateCodeData } = useCode();
-  const { jobLevel } = useAuth();
+  const { assessmentData, currentProblem, problemData, handleUpdateAssessmentData, handleUpdateCurrentProblem, handleUpdateProblemData } = useCode();
+  const { user } = useAuth();
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (currentProblem === "4") {
-      navigate(routes.code_problem_result);
+    if (!user) {
+      navigate(routes.login);
     } else {
-      getCodeData();
+      handleGetCodeAssessmentData();
     }
   }, [currentProblem]);
 
-  const getCodeData = async () => {
+  const handleGetCodeAssessmentData = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`${rootAPI}/get-${jobLevel}-code`);
-      updateCodeData(response.data);
+      const response = await axios.post(`${rootAPI}/get-code-assessment-scores`, {
+        candidate_id: user.sub.id,
+        job_level: user.sub.job_level,
+      })
+
+      handleUpdateAssessmentData(response.data.assessment_data);
+      handleUpdateCurrentProblem(response.data.current_problem_index);
+      handleUpdateProblemData(response.data.problem_data);
     } catch (error) {
       console.error(error);
     } finally {
       setLoading(false);
     }
-  };
+  }
 
-  if (!codeData) return <PageLoadingOverlay />;
+  console.log("assessmentData", assessmentData);
+  console.log("currentProblem", currentProblem);
+  console.log("problemData", problemData);
+
 
   const chartValue = (currentProblem / 3) * 100;
-  let { name, source, difficulty, timeLimit, memoryLimit, statement, input, output, constraints, example, explanation } = extractCode(codeData[`test_${currentProblem}`]);
 
+  if (!assessmentData || !problemData) {
+    return <PageLoadingOverlay />;
+  }
+
+  const problemKeys = Object.keys(problemData);
+  if (!problemKeys.length || currentProblem >= problemKeys.length) {
+    return <PageLoadingOverlay />;
+  }
+
+  let problemKey = problemKeys[currentProblem];
+  let singleProlem = problemData[problemKey];
+
+  if (!singleProlem) {
+    return <PageLoadingOverlay />;
+  }
+
+  let extractedData;
+  try {
+    extractedData = extractCode(singleProlem);
+    console.log("extractedData", extractedData);
+  } catch (error) {
+    console.error("Error extracting code: ", error);
+    return <PageLoadingOverlay />;
+  }
+
+  const { name, source, difficulty, timeLimit, memoryLimit, statement, input, output, constraints, example, explanation } = extractedData;
+  
+  
+  
   return (
     <div className="h-full flex flex-col bg-primary50">
-      {/* Second bar */}
       <div className="h-[12%] sm:h-[5%] bg-white text-primary950 p-2 sm:py-12 sm:px-36 text-start flex justify-between items-baseline sm:items-center">
         <div className="w-1/2 sm:w-full">
           <h1 className="text-base sm:text-3xl font-bold break-words">
@@ -71,8 +107,7 @@ const CodeProblem = () => {
           </div>
         </div>
       </div>
-
-      {/* Main content */}
+      
       <div className="h-full m-1 sm:m-5 flex flex-col sm:flex-row justify-between gap-5">
         <div className="w-full sm:w-2/5 h-[100vh] overflow-y-scroll bg-white rounded-md p-3 shadow-md">
           <p>Difficulty: {difficulty}</p>
@@ -102,6 +137,7 @@ const CodeProblem = () => {
           <CodeEditor />
         </div>
       </div>
+     
     </div>
   );
 };
