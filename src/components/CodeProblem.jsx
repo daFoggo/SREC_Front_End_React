@@ -14,24 +14,33 @@ const CodeProblem = () => {
   const { assessmentData, currentProblem, problemData, handleUpdateAssessmentData, handleUpdateCurrentProblem, handleUpdateProblemData } = useCode();
   const { user } = useAuth();
   const navigate = useNavigate();
-
-  const [loading, setLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     if (!user) {
       navigate(routes.login);
     } else {
-      handleGetCodeAssessmentData();
+      if (currentProblem === 4) {
+        navigate(routes.virtual_interview);
+      } else {
+        handleGetCodeAssessmentData();
+      }
     }
   }, [currentProblem]);
 
+  useEffect(() => {
+    if (assessmentData && problemData && typeof currentProblem === 'number') {
+      setIsLoading(false);
+    }
+  }, [assessmentData, problemData, currentProblem]);
+
   const handleGetCodeAssessmentData = async () => {
+    setIsLoading(true);
     try {
-      setLoading(true);
       const response = await axios.post(`${rootAPI}/get-code-assessment-scores`, {
         candidate_id: user.sub.id,
         job_level: user.sub.job_level,
-      })
+      });
 
       handleUpdateAssessmentData(response.data.assessment_data);
       handleUpdateCurrentProblem(response.data.current_problem_index);
@@ -39,45 +48,29 @@ const CodeProblem = () => {
     } catch (error) {
       console.error(error);
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
-  }
-
-  console.log("assessmentData", assessmentData);
-  console.log("currentProblem", currentProblem);
-  console.log("problemData", problemData);
-
+  };
 
   const chartValue = (currentProblem / 3) * 100;
 
-  if (!assessmentData || !problemData) {
-    return <PageLoadingOverlay />;
-  }
+  let problemKeys = Object.keys(problemData);
+  let problemKey = problemKeys[0];
+  let singleProblem = problemData[problemKey];
 
-  const problemKeys = Object.keys(problemData);
-  if (!problemKeys.length || currentProblem >= problemKeys.length) {
-    return <PageLoadingOverlay />;
-  }
-
-  let problemKey = problemKeys[currentProblem];
-  let singleProlem = problemData[problemKey];
-
-  if (!singleProlem) {
+  if (isLoading || !singleProblem) {
     return <PageLoadingOverlay />;
   }
 
   let extractedData;
   try {
-    extractedData = extractCode(singleProlem);
-    console.log("extractedData", extractedData);
+    extractedData = extractCode(singleProblem);
   } catch (error) {
     console.error("Error extracting code: ", error);
-    return <PageLoadingOverlay />;
+    return <div>Error extracting problem data</div>;
   }
 
   const { name, source, difficulty, timeLimit, memoryLimit, statement, input, output, constraints, example, explanation } = extractedData;
-  
-  
   
   return (
     <div className="h-full flex flex-col bg-primary50">
@@ -107,7 +100,7 @@ const CodeProblem = () => {
           </div>
         </div>
       </div>
-      
+
       <div className="h-full m-1 sm:m-5 flex flex-col sm:flex-row justify-between gap-5">
         <div className="w-full sm:w-2/5 h-[100vh] overflow-y-scroll bg-white rounded-md p-3 shadow-md">
           <p>Difficulty: {difficulty}</p>
@@ -134,10 +127,9 @@ const CodeProblem = () => {
         </div>
 
         <div className="w-full h-[100vh] sm:w-3/5 flex flex-col text-left gap-5">
-          <CodeEditor />
+          <CodeEditor problemData={singleProblem} />
         </div>
       </div>
-     
     </div>
   );
 };

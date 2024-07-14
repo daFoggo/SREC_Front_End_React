@@ -86,4 +86,6 @@ ConfirmModal.propTypes = {
     handleCloseModal: PropTypes.func,
     loadingRunSubmit: PropTypes.bool,
     handleRunSubmit: PropTypes.func,
+    modalDescription: PropTypes.string,
+    modalTitle: PropTypes.string,
 };

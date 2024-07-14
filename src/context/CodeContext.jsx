@@ -11,21 +11,23 @@ export const CodeProvider = ({ children }) => {
     const [assessmentData, setAssessmentData] = useState({});
     const [currentProblem, setCurrentProblem] = useState(1);
     const [problemData, setProblemData] = useState({});
+    const [indexInData, setIndexInData] = useState(0);
 
-    const handleUpdateAssessmentData = (newAssessmentData) => {
-        setAssessmentData(newAssessmentData);
-    }
+    const handleUpdateAssessmentData = (data) => {
+        setAssessmentData(data);
+    };
 
-    const handleUpdateCurrentProblem = (newCurrentProblem) => {
-        setCurrentProblem(newCurrentProblem);
-    }
+    const handleUpdateCurrentProblem = (index) => {
+        setCurrentProblem(index);
+    };
 
-    const handleUpdateProblemData = (newProblemData) => {
-        setProblemData(newProblemData);
-    }   
+    const handleUpdateProblemData = (data) => {
+        setProblemData(data);
+    };
+    
 
     return (
-        <CodeContext.Provider value={{ assessmentData, currentProblem, problemData, handleUpdateAssessmentData, handleUpdateCurrentProblem, handleUpdateProblemData }}>
+        <CodeContext.Provider value={{ assessmentData, currentProblem, problemData, indexInData, handleUpdateAssessmentData, handleUpdateCurrentProblem, handleUpdateProblemData, }}>
             {children}
         </CodeContext.Provider>
     );
