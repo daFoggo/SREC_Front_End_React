@@ -6,7 +6,7 @@ import Login from "../components/Login";
 import SignUp from "../components/SignUp";
 import CVMatching from "../components/CVMatching.jsx";
 import CodeProblem from "../components/CodeProblem";
-import CodeResult from "../components/CodeResult.jsx";
+import FinalCodeScore from "../components/FinalCodeScore.jsx";
 import VirtualInterview from "../components/VirtualInterview.jsx";
 import PrivateRoute from "./PrivateRoute";
 import Forbidden from "../components/Forbidden";
@@ -66,11 +66,12 @@ const AppRoutes = () => {
                         }
                     ></Route>
 
+
                     <Route
-                        path={routes.code_problem_result}
+                        path={routes.fina_code_assessment_score}
                         element={
                             <PrivateRoute requiredRole="candidate">
-                                <CodeResult />
+                                <FinalCodeScore />
                             </PrivateRoute>
                         }
                     ></Route>

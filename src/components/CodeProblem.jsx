@@ -21,7 +21,7 @@ const CodeProblem = () => {
       navigate(routes.login);
     } else {
       if (currentProblem === 4) {
-        navigate(routes.virtual_interview);
+        navigate(routes.fina_code_assessment_score);
       } else {
         handleGetCodeAssessmentData();
       }
