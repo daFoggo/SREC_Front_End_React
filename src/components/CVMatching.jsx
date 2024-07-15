@@ -12,9 +12,11 @@ import { useCVMatching } from "../context/CVMatchingContext";
 import ConfirmModal from "./Modal/ConfirmModal";
 import { useAlert } from '../context/AlertContext';
 import ChangeCircleOutlinedIcon from '@mui/icons-material/ChangeCircleOutlined';
+import { useAuth } from "../context/AuthContext";
 
 const CVMatching = () => {
   const { showAlert } = useAlert();
+  const { user } = useAuth();
   const { CVMatchingData = [], jobDescriptionData, updateCVMatchingData, updateJobDescriptionData } = useCVMatching();
   const [loading, setLoading] = useState(true);
   const [selectedJobId, setSelectedJobId] = useState(0);
@@ -67,6 +69,7 @@ const CVMatching = () => {
       setIsEmailSent(true);
 
       const response = await axios.post(`${rootAPI}/generate-account-and-send-email`, {
+        recruiter_id: user.sub.id,
         candidates: topCandidates.map(candidate => ({
           name: candidate.name,
           gmail: candidate.gmail,
@@ -95,6 +98,7 @@ const CVMatching = () => {
       setIsEmailSent(true);
 
       const response = await axios.post(`${rootAPI}/generate-account-and-send-email`, {
+        recruiter_id: user.sub.id,
         candidates: [{
           name: candidate.name,
           gmail: candidate.gmail,
