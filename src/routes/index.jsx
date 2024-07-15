@@ -27,12 +27,18 @@ const AppRoutes = () => {
                 return "Login";
             case routes.register:
                 return "Registry";
+            case routes.cv_matching:
+                return "CV Matching";
             case routes.code_problem:
                 return "Code Problem";
             case routes.code_problem_result:
                 return "Code Problem Result";
-            case routes.cv_matching:
-                return "CV Matching";
+            case routes.virtual_interview:
+                return "Virtual Interview";
+            case routes.summary:
+                return "Summary";
+            case routes.thank_you:
+                return "Thank You";
             case routes.forbidden:
                 return "Access Denied";
             default:
@@ -59,6 +65,15 @@ const AppRoutes = () => {
                 <Route path={routes.home} element={<Home />} />
 
                 <Route element={<Layout />}>
+                    <Route
+                        path={routes.cv_matching}
+                        element={
+                            <PrivateRoute requiredRole="recruiter">
+                                <CVMatching />
+                            </PrivateRoute>
+                        }
+                    />
+
                     <Route
                         path={routes.code_problem}
                         element={
@@ -88,37 +103,19 @@ const AppRoutes = () => {
                     />
 
                     <Route
+                        path={routes.summary}
+                        element={
+                            <PrivateRoute requiredRole="recruiter">
+                                <Summary />
+                            </PrivateRoute>
+                        }
+                    />
+
+                    <Route
                         path={routes.thank_you}
                         element={
                             <PrivateRoute requiredRole="candidate">
                                 <ThankYou />
-                            </PrivateRoute>
-                        }
-                    />
-
-                    <Route
-                        path={routes.cv_matching}
-                        element={
-                            <PrivateRoute requiredRole="recruiter">
-                                <CVMatching />
-                            </PrivateRoute>
-                        }
-                    />
-
-                    <Route
-                        path={routes.cv_matching}
-                        element={
-                            <PrivateRoute requiredRole="recruiter">
-                                <CVMatching />
-                            </PrivateRoute>
-                        }
-                    />
-
-                    <Route
-                        path={routes.summary}
-                        element={
-                            <PrivateRoute requiredRole="recruiter">
-                                <summary />
                             </PrivateRoute>
                         }
                     />
