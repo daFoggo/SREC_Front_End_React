@@ -33,25 +33,39 @@ const CVMatching = () => {
   const candidateNumbers = [1, 10, 50, 100, 500, 1000];
 
   useEffect(() => {
-    getCVMatchingData();
+    if (selectedJobId !== null) {
+      setLoading(true);
+      Promise.all([getJobDescriptionData(), getCVMatchingData()])
+        .then(() => setLoading(false))
+        .catch((error) => {
+          console.error("Error fetching data:", error);
+          setLoading(false);
+        });
+    }
   }, [selectedJobId]);
-
+  
+  const getJobDescriptionData = async () => {
+    try {
+      const response = await axios.get(`${rootAPI}/job-descriptions`);
+      updateJobDescriptionData(response.data);
+    } catch (error) {
+      console.error("Error fetching job descriptions:", error);
+      throw error;
+    }
+  };
+  
   const getCVMatchingData = async () => {
     try {
-      setLoading(true);
       const cvMatchingResponse = await axios.post(`${rootAPI}/cvs-matching`, {
         id: selectedJobId,
       });
       updateCVMatchingData(cvMatchingResponse.data);
-
-      const jobDescriptionResponse = await axios.get(`${rootAPI}/job-descriptions`);
-      updateJobDescriptionData(jobDescriptionResponse.data);
     } catch (error) {
-      console.error(error);
-    } finally {
-      setLoading(false);
+      console.error("Error fetching CV matching data:", error);
+      throw error;
     }
   };
+
 
   const handleSendEmail = async () => {
     const filteredRows = rows.filter(candidate => candidate.gmail !== "none");
@@ -225,7 +239,11 @@ const CVMatching = () => {
       <p className="font-bold text-sm text-slate-500 pl-2">Job</p>
       <div className="flex items-center text-center mb-2">
         <Button onClick={handleOpenJobModal}>
-          <h1 className="font-bold text-2xl sm:text-4xl text-primary950 text-left">{jobDescriptionData[selectedJobId].title}</h1>
+          <h1 className="font-bold text-2xl sm:text-4xl text-primary950 text-left">
+            {jobDescriptionData && jobDescriptionData[selectedJobId]
+              ? jobDescriptionData[selectedJobId].title
+              : "No job selected"}
+          </h1>
         </Button>
         <Button onClick={handleOpenSelectJobDialog}>
           <ChangeCircleOutlinedIcon />
@@ -296,7 +314,7 @@ const CVMatching = () => {
             {jobDescriptionData.map((job, index) => (
               <ListItem key={index} disablePadding>
                 <p className="font-bold text-primary800">{index + 1}. </p>
-                <ListItemButton onClick={() => handleSelectedJobId(job.id) }>
+                <ListItemButton onClick={() => handleSelectedJobId(job.id)}>
                   <ListItemText primary={job.title} />
                 </ListItemButton>
               </ListItem>

@@ -24,20 +24,37 @@ export const user_rating = [
     },
 ];
 
-export const navLists = [
+export const candidateNavLists = [
     {
         id: 1,
         title: "About Us",
+        link: "/"
     },
     {
         id: 2,
         title: "Services",
+        link: "/"
     },
     {
         id: 3,
         title: "Jobs",
+        link: "/"
     },
 ];
+
+export const recruiterNavLists = [
+    {
+        id: 1,
+        title: "CV Matching",
+        link: "/cv-matching"
+    },
+    {
+        id: 2,
+        title: "Summary",
+        link: "/summary"
+    }
+];
+
 
 export const userDropdown = [
     {

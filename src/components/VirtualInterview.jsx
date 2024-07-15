@@ -47,7 +47,7 @@ const VirtualInterview = () => {
       navigate(routes.login);
     } else {
       if (currentQuestion === 5) {
-        navigate(routes.home);
+        navigate(routes.thank_you);
       } else {
         handleGetVirtualInterviewData();
       }

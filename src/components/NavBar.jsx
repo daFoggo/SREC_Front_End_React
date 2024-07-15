@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { useAlert } from "../context/AlertContext";
@@ -15,22 +15,30 @@ import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
 import Tooltip from "@mui/material/Tooltip";
 import MenuItem from "@mui/material/MenuItem";
-import AdbIcon from "@mui/icons-material/Adb";
 
-import { navLists, userDropdown } from "../constants";
+import { candidateNavLists, recruiterNavLists, userDropdown } from "../constants";
 import { logo } from "../utils";
 
 const NavBar = () => {
   const [anchorElNav, setAnchorElNav] = useState(null);
   const [anchorElUser, setAnchorElUser] = useState(null);
-
+  const [usedNavLists, setUsedNavLists] = useState(candidateNavLists);
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const { showAlert } = useAlert();
 
+  useEffect(() => {
+    if (user?.sub?.role === "recruiter") {
+      setUsedNavLists(recruiterNavLists);
+    } else {
+      setUsedNavLists(candidateNavLists);
+    }
+  }, [user]);
+  
   const handleOpenNavMenu = (event) => {
     setAnchorElNav(event.currentTarget);
   };
+
   const handleOpenUserMenu = (event) => {
     setAnchorElUser(event.currentTarget);
   };
@@ -70,7 +78,7 @@ const NavBar = () => {
               aria-controls="menu-appbar"
               aria-haspopup="true"
               onClick={handleOpenNavMenu}
-              color="white"
+              color="inherit"
             >
               <MenuIcon />
             </IconButton>
@@ -92,8 +100,14 @@ const NavBar = () => {
                 display: { xs: "block", md: "none" },
               }}
             >
-              {navLists.map((category) => (
-                <MenuItem key={category.id} onClick={handleCloseNavMenu}>
+              {usedNavLists.map((category) => (
+                <MenuItem 
+                  key={category.id} 
+                  onClick={() => {
+                    handleCloseNavMenu();
+                    navigate(category.link);
+                  }}
+                >
                   <Typography textAlign="center" sx={{ color: "#052b4c" }}>
                     {category.title}
                   </Typography>
@@ -101,7 +115,14 @@ const NavBar = () => {
               ))}
             </Menu>
           </Box>
-          <img src={logo} alt="" width="50" className="cursor-pointer" onClick={handleBackToHome} sx={{ display: { xs: "flex", md: "none" }, mr: 1 }} />
+          <img 
+            src={logo} 
+            alt="" 
+            width="50" 
+            className="cursor-pointer" 
+            onClick={handleBackToHome} 
+            style={{ display: "flex", marginRight: "8px" }}
+          />
           <Typography
             variant="h5"
             noWrap
@@ -118,10 +139,13 @@ const NavBar = () => {
             S-REC
           </Typography>
           <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}>
-            {navLists.map((category) => (
+            {usedNavLists.map((category) => (
               <Button
                 key={category.id}
-                onClick={handleCloseNavMenu}
+                onClick={() => {
+                  handleCloseNavMenu();
+                  navigate(category.link);
+                }}
                 sx={{
                   my: 2,
                   mx: 2,
@@ -142,11 +166,9 @@ const NavBar = () => {
           <Box sx={{ flexGrow: 0 }}>
             <Tooltip title="Open settings">
               <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                <Avatar sx={{ backgroundColor: "white"}}>
+                <Avatar sx={{ backgroundColor: "white" }}>
                   <p className="font-bold text-primary500 text-xl text-center">
-                    {user && user.sub && user.sub.full_name
-                      ? user.sub.full_name[0]
-                      : ""}
+                    {user?.sub?.full_name?.[0] || ""}
                   </p>
                 </Avatar>
               </IconButton>
@@ -168,12 +190,18 @@ const NavBar = () => {
               onClose={handleCloseUserMenu}
             >
               {userDropdown.map((category) => (
-                <MenuItem key={category.id} onClick={handleCloseUserMenu}>
-                  <Typography
-                    textAlign="center"
-                    color="#052b4c"
-                    onClick={category.title === "Logout" ? handleLogout : null}
-                  >
+                <MenuItem 
+                  key={category.id} 
+                  onClick={() => {
+                    handleCloseUserMenu();
+                    if (category.title === "Logout") {
+                      handleLogout();
+                    } else if (category.link) {
+                      navigate(category.link);
+                    }
+                  }}
+                >
+                  <Typography textAlign="center" color="#052b4c">
                     {category.title}
                   </Typography>
                 </MenuItem>

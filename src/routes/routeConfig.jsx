@@ -10,6 +10,7 @@ const routes = {
     virtual_interview: '/virtual-interview',
     fina_code_assessment_score: '/final-code-assessment-score',
     summary: '/summary',
+    thank_you: '/thank-you',
 }
 
 export default routes;

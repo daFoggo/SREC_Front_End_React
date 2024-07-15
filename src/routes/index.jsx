@@ -13,6 +13,8 @@ import Forbidden from "../components/Forbidden";
 import Layout from "../components/Layout.jsx";
 import Home from "../components/Home";
 import PageNotFound from "../components/PageNotFound";
+import ThankYou from "../components/ThankYou.jsx";
+import Summary from "../components/Summary.jsx";
 
 const AppRoutes = () => {
     const location = useLocation();
@@ -86,10 +88,37 @@ const AppRoutes = () => {
                     />
 
                     <Route
+                        path={routes.thank_you}
+                        element={
+                            <PrivateRoute requiredRole="candidate">
+                                <ThankYou />
+                            </PrivateRoute>
+                        }
+                    />
+
+                    <Route
                         path={routes.cv_matching}
                         element={
                             <PrivateRoute requiredRole="recruiter">
                                 <CVMatching />
+                            </PrivateRoute>
+                        }
+                    />
+
+                    <Route
+                        path={routes.cv_matching}
+                        element={
+                            <PrivateRoute requiredRole="recruiter">
+                                <CVMatching />
+                            </PrivateRoute>
+                        }
+                    />
+
+                    <Route
+                        path={routes.summary}
+                        element={
+                            <PrivateRoute requiredRole="recruiter">
+                                <summary />
                             </PrivateRoute>
                         }
                     />
