@@ -133,12 +133,12 @@ const Login = () => {
                     </div>
                 </div>
 
-                <div className="hidden sm:flex flex-col justify-between w-3/5 bg-primary500 rounded-xl text-white py-20 px-14">
+                <div className="hidden sm:flex flex-col w-3/5 bg-primary500 rounded-xl text-white py-20 px-14">
                     <Typography variant="h3" sx={{ fontWeight: 'bold' }}>
                         SREC
                     </Typography>
 
-                    <div>
+                    <div className='mt-32'>
                         <Typography variant="h4" sx={{ fontWeight: 'bold' }}>
                             Welcome back! <br />
                             Let&apos;s make a new recruitment
@@ -150,7 +150,7 @@ const Login = () => {
                         </Typography>
                     </div>
 
-                    <ImageCarousel />
+                    {/* <ImageCarousel /> */}
                 </div>
             </div>
         </ThemeProvider>

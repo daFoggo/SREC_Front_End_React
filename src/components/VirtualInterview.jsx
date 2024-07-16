@@ -77,12 +77,12 @@ const VirtualInterview = () => {
   const handleSubmitVideo = async () => {
     setIsSubmitting(true);
     try {
-      const blob = new Blob(recordedChunks, { type: 'video/webm' });
+      const blob = new Blob(recordedChunks, { type: 'video/mp4' });
   
       const reader = new FileReader();
       return new Promise((resolve, reject) => {
         reader.onloadend = async function () {
-          const base64data = reader.result;
+          const base64data = reader.result.split(',')[1];
   
           const jsonData = {
             interview_id: interviewData[0].interview_id,
@@ -113,12 +113,16 @@ const VirtualInterview = () => {
       setIsSubmitting(false);
     }
   };
+  
 
   const handleAnalyzeVideo = async () => {
     setIsSubmitting(true);
     try {
       const response = await axios.post(`${rootAPI}/virtual-interview-analyze`, {
+        candidate_id: user.sub.id,
+        current_question_index: currentQuestion,
         interview_id: interviewData[0].interview_id,
+        question_id: interviewData[0].question_id,
       }, {
         headers: {
           'Content-Type': 'application/json'
@@ -170,7 +174,7 @@ const VirtualInterview = () => {
     setCapturing(true);
     setCountdown(null);
     mediaRecorderRef.current = new MediaRecorder(webcamRef.current.stream, {
-      mimeType: "video/webm"
+      mimeType: "video/mp4"
     });
     mediaRecorderRef.current.addEventListener(
       "dataavailable",

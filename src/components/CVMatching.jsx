@@ -13,6 +13,7 @@ import ConfirmModal from "./Modal/ConfirmModal";
 import { useAlert } from '../context/AlertContext';
 import ChangeCircleOutlinedIcon from '@mui/icons-material/ChangeCircleOutlined';
 import { useAuth } from "../context/AuthContext";
+import { Tooltip } from "@mui/material";
 
 const CVMatching = () => {
   const { showAlert } = useAlert();
@@ -93,7 +94,7 @@ const CVMatching = () => {
         })),
         job_id: selectedJobId,
       });
-      
+
       showAlert({
         message: response.data.msg,
         type: "success"
@@ -217,19 +218,23 @@ const CVMatching = () => {
       width: isSmallScreen ? 200 : undefined,
       renderCell: (params) => (
         <div>
-          <Button variant="text" onClick={() => handleOpenCandidateModal(params.row)}>
-            <VisibilityIcon />
-          </Button>
-          <Button variant="text" onClick={
-            () => {
-              handleSendSingleEmail({
-                name: params.row.name,
-                gmail: params.row.gmail,
-              })
-            }
-          }>
-            <ForwardToInboxIcon />
-          </Button>
+          <Tooltip title="View full data">
+            <Button variant="text" onClick={() => handleOpenCandidateModal(params.row)}>
+              <VisibilityIcon />
+            </Button>
+          </Tooltip>
+          <Tooltip title="Send email">
+            <Button variant="text" onClick={
+              () => {
+                handleSendSingleEmail({
+                  name: params.row.name,
+                  gmail: params.row.gmail,
+                })
+              }
+            }>
+              <ForwardToInboxIcon />
+            </Button>
+          </Tooltip>
         </div>
       ),
     },
@@ -241,16 +246,20 @@ const CVMatching = () => {
     <div className="p-2 sm:py-12 sm:px-36">
       <p className="font-bold text-sm text-slate-500 pl-2">Job</p>
       <div className="flex items-center text-center mb-2">
-        <Button onClick={handleOpenJobModal}>
-          <h1 className="font-bold text-2xl sm:text-4xl text-primary950 text-left">
-            {jobDescriptionData && jobDescriptionData[selectedJobId]
-              ? jobDescriptionData[selectedJobId].title
-              : "No job selected"}
-          </h1>
-        </Button>
-        <Button onClick={handleOpenSelectJobDialog}>
-          <ChangeCircleOutlinedIcon />
-        </Button>
+        <Tooltip title="Click to view job description">
+          <Button onClick={handleOpenJobModal}>
+            <h1 className="font-bold text-2xl sm:text-4xl text-primary950 text-left">
+              {jobDescriptionData && jobDescriptionData[selectedJobId]
+                ? jobDescriptionData[selectedJobId].title
+                : "No job selected"}
+            </h1>
+          </Button>
+        </Tooltip>
+        <Tooltip title="Click to change the job">
+          <Button onClick={handleOpenSelectJobDialog}>
+            <ChangeCircleOutlinedIcon />
+          </Button>
+        </Tooltip>
       </div>
       <DataGrid
         rows={rows}
@@ -281,7 +290,7 @@ const CVMatching = () => {
           options={candidateNumbers}
           getOptionLabel={(option) => option.toString()}
           renderInput={(params) => (
-            <TextField {...params} label="Select number of candidate" variant="filled" />
+            <TextField {...params} label="Select the number of top candidates" variant="filled" />
           )}
           sx={{
             flex: 1,
