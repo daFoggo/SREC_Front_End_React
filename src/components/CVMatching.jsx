@@ -34,6 +34,7 @@ const CVMatching = () => {
 
   useEffect(() => {
     if (selectedJobId !== null) {
+      localStorage.setItem("job_id", selectedJobId);
       setLoading(true);
       Promise.all([getJobDescriptionData(), getCVMatchingData()])
         .then(() => setLoading(false))
@@ -43,7 +44,7 @@ const CVMatching = () => {
         });
     }
   }, [selectedJobId]);
-  
+
   const getJobDescriptionData = async () => {
     try {
       const response = await axios.get(`${rootAPI}/job-descriptions`);
@@ -53,7 +54,7 @@ const CVMatching = () => {
       throw error;
     }
   };
-  
+
   const getCVMatchingData = async () => {
     try {
       const cvMatchingResponse = await axios.post(`${rootAPI}/cvs-matching`, {
@@ -88,9 +89,11 @@ const CVMatching = () => {
           name: candidate.name,
           gmail: candidate.gmail,
           level: jobDescriptionData[selectedJobId].level,
-        }))
+          matching_score: candidate.matching_score,
+        })),
+        job_id: selectedJobId,
       });
-
+      
       showAlert({
         message: response.data.msg,
         type: "success"

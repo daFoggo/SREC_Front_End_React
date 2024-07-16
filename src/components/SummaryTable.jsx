@@ -8,8 +8,9 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { DataGrid } from '@mui/x-data-grid';
 import NavigationSharpIcon from '@mui/icons-material/NavigationSharp';
+import routes from '../routes/routeConfig';
 
-const Summary = () => {
+const SummaryTable = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [candidateData, setCandidateData] = useState([]);
   const [selectedCandidate, setSelectedCandidate] = useState(null);
@@ -44,7 +45,7 @@ const Summary = () => {
   const handleSetSelectedCandidate = (candidate) => {
     setSelectedCandidate(candidate);
     handleAddToLocalStorage(candidate);
-    
+    navigate(routes.summary_dashboard);
   }
 
   const handleAddToLocalStorage = (candidate) => {
@@ -110,4 +111,4 @@ const Summary = () => {
   )
 }
 
-export default Summary
+export default SummaryTable

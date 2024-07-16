@@ -14,7 +14,8 @@ import Layout from "../components/Layout.jsx";
 import Home from "../components/Home";
 import PageNotFound from "../components/PageNotFound";
 import ThankYou from "../components/ThankYou.jsx";
-import Summary from "../components/Summary.jsx";
+import SummaryTable from "../components/SummaryTable.jsx";
+import SummaryDashboard from "../components/SummaryDashboard.jsx";
 
 const AppRoutes = () => {
     const location = useLocation();
@@ -37,6 +38,8 @@ const AppRoutes = () => {
                 return "Virtual Interview";
             case routes.summary:
                 return "Summary";
+            case routes.summary_dashboard:
+                return "Summary Dashboard";
             case routes.thank_you:
                 return "Thank You";
             case routes.forbidden:
@@ -103,10 +106,19 @@ const AppRoutes = () => {
                     />
 
                     <Route
-                        path={routes.summary}
+                        path={routes.summary_table}
                         element={
                             <PrivateRoute requiredRole="recruiter">
-                                <Summary />
+                                <SummaryTable />
+                            </PrivateRoute>
+                        }
+                    />
+
+                    <Route
+                        path={routes.summary_dashboard}
+                        element={
+                            <PrivateRoute requiredRole="recruiter">
+                                <SummaryDashboard />
                             </PrivateRoute>
                         }
                     />

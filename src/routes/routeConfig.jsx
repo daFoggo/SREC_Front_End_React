@@ -9,7 +9,8 @@ const routes = {
     pageNotFound: '/page-not-found',
     virtual_interview: '/virtual-interview',
     fina_code_assessment_score: '/final-code-assessment-score',
-    summary: '/summary',
+    summary_table: '/summary',
+    summary_dashboard: '/summary/dashboard',
     thank_you: '/thank-you',
 }
 
