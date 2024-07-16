@@ -119,7 +119,7 @@ const SummaryDashboard = () => {
           <div className="flex w-full h-1/3 justify-evenly gap-6">
             <div className="w-1/3 h-full bg-white shadow-md rounded-xl flex flex-col justify-center items-center relative">
               <p className="font-bold text-xl text-primary950 absolute top-3 left-3">CV Matching score</p>
-              <p className="font-bold text-3xl text-primary500">{matchingScoreData.toFixed(2)} / 100</p>
+              <p className="font-bold text-3xl text-primary500">{matchingScoreData.toFixed(2)}</p>
               <span className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center opacity-25">
                 <JoinInnerIcon sx={{
                   fontSize: 250,

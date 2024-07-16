@@ -19,7 +19,9 @@ const FinalCodeScore = () => {
 
     useEffect(() => {
         if (user) {
-            handleGetFinalCodeScore();
+            setTimeout(() => {
+                handleGetFinalCodeScore();
+            }, 1000);
         }
     }, [user]);
 

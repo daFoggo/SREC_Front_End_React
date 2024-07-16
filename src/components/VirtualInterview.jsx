@@ -25,6 +25,7 @@ const VirtualInterview = () => {
   const [isMuting, setIsMuting] = useState(false);
   const [recordedChunks, setRecordedChunks] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [question, setQuestion] = useState(null);
   const [countdown, setCountdown] = useState(null);
   const [showQuestion, setShowQuestion] = useState(false);
@@ -38,7 +39,7 @@ const VirtualInterview = () => {
 
   useEffect(() => {
     if (!capturing && recordedChunks.length > 0) {
-      handleDownload();
+      handleSubmitVideo();
     }
   }, [capturing, recordedChunks]);
 
@@ -67,25 +68,71 @@ const VirtualInterview = () => {
       setQuestion(null);
       setShowQuestion(false);
     } catch (error) {
-      console.error(error);
+      console.error('Error getting interview data:', error);
     } finally {
       setIsLoading(false);
     }
-  };
+  }
 
   const handleSubmitVideo = async () => {
+    setIsSubmitting(true);
     try {
-      const response = await axios.put(`${rootAPI}/submit-virtual-interview-scores`, {
-        interview_id: interviewData[0].interview_id,
-        current_question_index: currentQuestion,
-        status: 1
+      const blob = new Blob(recordedChunks, { type: 'video/webm' });
+  
+      const reader = new FileReader();
+      return new Promise((resolve, reject) => {
+        reader.onloadend = async function () {
+          const base64data = reader.result;
+  
+          const jsonData = {
+            interview_id: interviewData[0].interview_id,
+            candidate_id: user.sub.id,
+            current_question_index: currentQuestion,
+            status: true,
+            video_data: base64data
+          };
+  
+          try {
+            const response = await axios.put(`${rootAPI}/submit-virtual-interview-scores`, jsonData, {
+              headers: {
+                'Content-Type': 'application/json'
+              }
+            });
+  
+            console.log(response.data);
+            resolve();
+          } catch (error) {
+            console.error('Error submitting video:', error);
+            reject(error);
+          }
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
       });
-    } catch (error) {
-      console.error(error);
     } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleAnalyzeVideo = async () => {
+    setIsSubmitting(true);
+    try {
+      const response = await axios.post(`${rootAPI}/virtual-interview-analyze`, {
+        interview_id: interviewData[0].interview_id,
+      }, {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+  
+      console.log(response.data.msg);
+    } catch (error) {
+      console.error('Error analyzing video:', error);
+    } finally {
+      setIsSubmitting(false);
       handleUpdateCurrentQuestion(currentQuestion + 1);
     }
-  }
+  };
 
   const getAnswer = (questionId) => {
     if (questionData && interviewData[0]) {
@@ -140,29 +187,18 @@ const VirtualInterview = () => {
     }
   };
 
-  const handleStopCaptureClick = () => {
+  const handleStopCaptureClick = async () => {
     mediaRecorderRef.current.stop();
     setCapturing(false);
     setCountdown(null);
     setQuestion(null);
     setShowQuestion(false);
-    handleSubmitVideo();
-  };
-
-  const handleDownload = () => {
-    if (recordedChunks.length) {
-      const blob = new Blob(recordedChunks, {
-        type: "video/mp4"
-      });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      document.body.appendChild(a);
-      a.style = "display: none";
-      a.href = url;
-      a.download = `${user.sub.id}-capture.mp4`;
-      a.click();
-      window.URL.revokeObjectURL(url);
-      setRecordedChunks([]);
+    
+    try {
+      await handleSubmitVideo();
+      await handleAnalyzeVideo();
+    } catch (error) {
+      console.error('Error in stop capture process:', error);
     }
   };
 
@@ -177,7 +213,7 @@ const VirtualInterview = () => {
     }
   };
 
-  if (isLoading) {
+  if (isLoading || isSubmitting) {
     return <PageLoadingOverlay />;
   }
 
@@ -266,17 +302,15 @@ const VirtualInterview = () => {
             <h1 className='font-bold text-2xl text-primary950'>Question {currentQuestion}</h1>
             <p className='text-xl'>{question}</p>
           </div>
-        ) :
-          (
-            <div className='flex flex-col gap-2 text-left bg-primary200 rounded-md p-3'>
-              <h1 className="font-semibold text-2xl">Note</h1>
-              <p>To <b>start the interview</b>, click on the <b>middle button</b> below the Webcam. <br />
-                When you <b>finish your answer</b>, you <b>must click on it</b> again to start the next question. <br />
-                After <b>finishing all</b> the question, you will be <b>redirected</b> to the next round. <br />
-              </p>
-            </div>
-          )
-        }
+        ) : (
+          <div className='flex flex-col gap-2 text-left bg-primary200 rounded-md p-3'>
+            <h1 className="font-semibold text-2xl">Note</h1>
+            <p>To <b>start the interview</b>, click on the <b>middle button</b> below the Webcam. <br />
+              When you <b>finish your answer</b>, you <b>must click on it</b> again to start the next question. <br />
+              After <b>finishing all</b> the question, you will be <b>redirected</b> to the next round. <br />
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );
