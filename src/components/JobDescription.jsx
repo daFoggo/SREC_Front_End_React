@@ -98,7 +98,7 @@ const JobDescription = () => {
                                                 <TableCell key={column.id}>
                                                     <Tooltip title="Get CV matching data with this job">
                                                         <IconButton onClick={() => handleNavigateToCVMatching(row.id)}>
-                                                            <LaunchIcon />
+                                                            <LaunchIcon sx={{"color": "#10a1fc"}}/>
                                                         </IconButton>
                                                     </Tooltip>
                                                 </TableCell>
