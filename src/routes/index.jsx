@@ -16,6 +16,7 @@ import PageNotFound from "../components/PageNotFound";
 import ThankYou from "../components/ThankYou.jsx";
 import SummaryTable from "../components/SummaryTable.jsx";
 import SummaryDashboard from "../components/SummaryDashboard.jsx";
+import Survey from "../components/Survey.jsx";
 
 const AppRoutes = () => {
     const location = useLocation();
@@ -92,6 +93,16 @@ const AppRoutes = () => {
                         element={
                             <PrivateRoute requiredRole="candidate">
                                 <FinalCodeScore />
+                            </PrivateRoute>
+                        }
+                    ></Route>
+
+
+                    <Route
+                        path={routes.personality_test}
+                        element={
+                            <PrivateRoute requiredRole="candidate">
+                                <Survey />
                             </PrivateRoute>
                         }
                     ></Route>

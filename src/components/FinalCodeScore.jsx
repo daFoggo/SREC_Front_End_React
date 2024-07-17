@@ -100,7 +100,7 @@ const FinalCodeScore = () => {
                     
                     <button className='bg-primary500 hover:bg-primary600 py-3 px-5 text-white font-bold rounded-md mt-5' onClick={
                         () => {
-                            navigate(routes.virtual_interview);
+                            navigate(routes.personality_test);
                         }
                     }>Navigate to next challenge</button>
                 </div>

@@ -64,6 +64,16 @@ const NavBar = () => {
     navigate("/");
   };
 
+ 
+  document.addEventListener("scroll", function() {
+    let header = document.querySelector("header");
+    if (window.pageYOffset > 74) {
+      header.classList.add('sticky'); // Change background color on scroll
+    } else {
+      header.classList.remove('sticky');  // Default background color
+    }
+  });
+
   return (
     <AppBar
       position="static"

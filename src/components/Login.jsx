@@ -46,10 +46,6 @@ const Login = () => {
                 const token = response.data.access_token;
                 saveTokenAndUserData(token);
                 setMsg('');
-                showAlert({
-                    message: 'Login successful',
-                    type: 'success',
-                });
             } catch (error) {
                 setMsg(error.response.data.msg);
                 showAlert({
