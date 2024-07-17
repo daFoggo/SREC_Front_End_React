@@ -16,9 +16,11 @@ import {
     CircularProgress,
 } from '@mui/material';
 
+import routes from '../routes/routeConfig';
+
 import ImageCarousel from './ImageCarousel';
 
-const Login = () => {
+const LoginCandidate = () => {
     const navigate = useNavigate();
     const { saveTokenAndUserData, role } = useAuth();
     const { showAlert } = useAlert();
@@ -38,7 +40,7 @@ const Login = () => {
             setLoading(true);
 
             try {
-                const response = await axios.post(`${rootAPI}/login`, {
+                const response = await axios.post(`${rootAPI}/login/candidate`, {
                     userName,
                     password,
                 });
@@ -59,45 +61,30 @@ const Login = () => {
     };
 
     useEffect(() => {
-        if (role === 'candidate') {
-            navigate('/code-assessment');
-        } else if (role === 'recruiter') {
-            navigate('/cv-matching');
+        if ( role === 'candidate') {
+            navigate(routes.code_problem);
         }
     }, [role]);
 
     return (
         <ThemeProvider theme={loginTheme}>
             <div className="flex flex-col sm:flex-row w-full h-[100vh] rounded-xl bg-white p-3">
-                <div className="flex flex-col sm:w-full h-full text-left p-5 sm:p-20">
-                    <div className="flex flex-col">
-                        <Typography variant="h3" sx={{ fontWeight: 'bold' }}>
-                            Login
-                        </Typography>
-                        {/* <Typography variant="body2">
-                            Don&apos;t have an account?{' '}
-                            <Link
-                                href="/register"
-                                sx={{
-                                    fontWeight: 'bold',
-                                    color: '#10a1fc',
-                                    '&:hover': {
-                                        color: '#0077d1',
-                                    },
-                                }}
-                            >
-                                Sign Up
-                            </Link>
-                        </Typography> */}
+                <div className="flex flex-col sm:w-1/2 h-full text-left p-5 sm:p-20">
+                    <div className="flex flex-col items-center">
+                        <h1 className='font-bold text-6xl font-spaceGrotesk text-primary950 text-center'>Login</h1>
+                        <p className='font-medium text-lg font-spaceGrotesk text-slate-500 mt-2 text-center max-w-md'>
+                            Your dream job awaits. Let's showcase your talents and find your perfect match
+                        </p>
                     </div>
 
-                    <div className="mt-24 flex flex-col gap-5">
+                    <div className="mt-24 flex flex-col items-center gap-5 w-full max-w-md mx-auto">
                         <TextField
                             label="User name"
                             variant="outlined"
                             type="text"
                             placeholder="User name"
                             onChange={(e) => setUserName(e.target.value)}
+                            fullWidth
                         />
 
                         <TextField
@@ -106,13 +93,14 @@ const Login = () => {
                             type="password"
                             placeholder="Password"
                             onChange={(e) => setPassword(e.target.value)}
+                            fullWidth
                         />
 
-                        {msg && <Typography variant="body2" className="text-red-500">{msg}</Typography>}
+                        {msg && <Typography variant="body2" className="text-red-500 w-full text-center">{msg}</Typography>}
                         <Button
                             variant="contained"
                             onClick={handleLogin}
-                            className="self-end w-1/5 text-white py-2 sm:py-3 rounded-md"
+                            className="w-full sm:w-1/2 text-white py-2 sm:py-3 rounded-md"
                             sx={{
                                 backgroundColor: '#10a1fc',
                                 textTransform: 'none',
@@ -129,21 +117,21 @@ const Login = () => {
                     </div>
                 </div>
 
-                <div className="hidden sm:flex flex-col w-3/5 bg-primary500 rounded-xl text-white py-20 px-14">
+                <div className="hidden sm:flex flex-col w-1/2 bg-primary500 rounded-xl text-white py-20 px-14">
                     <Typography variant="h3" sx={{ fontWeight: 'bold' }}>
                         SREC
                     </Typography>
 
-                    <div className='mt-32'>
-                        <Typography variant="h4" sx={{ fontWeight: 'bold' }}>
-                            Welcome back! <br />
-                            Let&apos;s make a new recruitment
-                        </Typography>
-                        <Typography variant="body1" className="opacity-80">
-                            Discover our advanced recruitment platform, <br />
-                            offering a seamless evaluation process for both <br />
-                            hard and soft skills.
-                        </Typography>
+                    <div className='flex flex-col justify-center h-full'>
+                        <h1 className='text-3xl font-bold font-spaceGrotesk text-justify'>
+                            Revolutionize your recruitment process with SREC,<br />
+                            our advanced AI-powered platform.
+                        </h1>
+                        <p className="text-sm font-spaceGrotesk opacity-80 mt-5 text-justify max-w-3xl">
+                            Experience seamless evaluation of both hard and soft skills through automated resume screening, tailored coding assessments,
+                            personality tests, and virtual interviews. Save time, improve accuracy, and ensure inclusivity with
+                            our comprehensive solution designed for IT recruitment and beyond.
+                        </p>
                     </div>
 
                     {/* <ImageCarousel /> */}
@@ -153,4 +141,4 @@ const Login = () => {
     );
 };
 
-export default Login;
+export default LoginCandidate;

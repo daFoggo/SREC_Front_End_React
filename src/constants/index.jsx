@@ -44,6 +44,11 @@ export const candidateNavLists = [
 
 export const recruiterNavLists = [
     {
+        id: 0,
+        title: "Job description",
+        link: "/job-description"
+    },
+    {
         id: 1,
         title: "CV Matching",
         link: "/cv-matching"

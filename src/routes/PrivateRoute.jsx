@@ -3,6 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import PropTypes from 'prop-types';
 import CircularProgress from '@mui/material/CircularProgress';
 import Box from '@mui/material/Box';
+import routes from './routeConfig';
 
 const PrivateRoute = ({ children, requiredRole }) => {
     const { user, role, loading } = useAuth();
@@ -16,7 +17,7 @@ const PrivateRoute = ({ children, requiredRole }) => {
     }
 
     if (!user || (requiredRole && role !== requiredRole)) {
-        return <Navigate to="/forbidden" />;
+        return <Navigate to={routes.forbidden} />;
     }
 
     return children;

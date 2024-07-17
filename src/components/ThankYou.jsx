@@ -1,6 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { thank_you_icon } from "../utils";
+import routes from "../routes/routeConfig";
 
 const ThankYou = () => {
     const navigate = useNavigate();
@@ -18,7 +19,7 @@ const ThankYou = () => {
                 </p>
                 <button
                     className="mt-16 py-3 px-5 bg-gradient-to-r from-primary400 to-primary500 hover:from-primary600 hover:to-primary700 hover:scale-[102%] text-white w-full sm:w-1/4 rounded-3xl duration-300 font-bold"
-                    onClick={() => navigate("/")}
+                    onClick={() => navigate(routes.home)}
                 >
                     Back to homepage
                 </button>

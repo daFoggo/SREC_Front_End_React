@@ -34,7 +34,7 @@ const SummaryDashboard = () => {
       handleGetFinalCodeScore();
       handleGetVirtualInterviewScore();
     } else {
-      navigate("/forbidden");
+      navigate(routes.forbidden);
     }
   }, [user, selectedQuestion]);
 
@@ -115,6 +115,7 @@ const SummaryDashboard = () => {
             borderRadius: '50%',
             width: '40px',
             height: '40px',
+            marginRight: 2,
             minWidth: 0,
             "&:hover": {
               backgroundColor: "#052b4c",
@@ -134,6 +135,7 @@ const SummaryDashboard = () => {
           <AssessmentIcon
             sx={{
               fontSize: 40,
+              marginRight: 2,
             }}
           />
           <h1 className="font-bold text-3xl">Summary report</h1>

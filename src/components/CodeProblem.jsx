@@ -18,7 +18,7 @@ const CodeProblem = () => {
 
   useEffect(() => {
     if (!user) {
-      navigate(routes.login);
+      navigate(routes.login_candidate);
     } else {
       if (currentProblem === 4) {
         navigate(routes.fina_code_assessment_score);

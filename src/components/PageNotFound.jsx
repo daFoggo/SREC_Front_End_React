@@ -1,10 +1,11 @@
 import { useNavigate } from "react-router-dom"
+import routes from "../routes/routeConfig"
 
 const Forbidden = () => {
   const navigate = useNavigate()
 
   const goBack = () => {
-    navigate("/")
+    navigate(routes.home)
   }
 
   return (

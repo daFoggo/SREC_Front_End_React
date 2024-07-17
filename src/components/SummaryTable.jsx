@@ -24,7 +24,7 @@ const SummaryTable = () => {
     if (user.sub.role === 'recruiter') {
       handleGetCandidateWithRecruiter();
     } else {
-      navigate('/forbidden');
+      navigate(routes.forbidden);
     }
   }, [])
 

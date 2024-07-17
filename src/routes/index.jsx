@@ -2,7 +2,8 @@ import { Routes, Route, useLocation, Navigate } from "react-router-dom";
 import { Helmet, HelmetProvider } from "react-helmet-async";
 import routes from "./routeConfig";
 
-import Login from "../components/Login";
+import LoginCandidate from "../components/LoginCandidate.jsx";
+import LoginRecruiter from "../components/LoginRecruiter.jsx";
 import SignUp from "../components/SignUp";
 import CVMatching from "../components/CVMatching.jsx";
 import CodeProblem from "../components/CodeProblem";
@@ -17,6 +18,7 @@ import ThankYou from "../components/ThankYou.jsx";
 import SummaryTable from "../components/SummaryTable.jsx";
 import SummaryDashboard from "../components/SummaryDashboard.jsx";
 import Survey from "../components/Survey.jsx";
+import JobDescription from "../components/JobDescription.jsx";
 
 const AppRoutes = () => {
     const location = useLocation();
@@ -25,10 +27,14 @@ const AppRoutes = () => {
         switch (pathname) {
             case routes.home:
                 return "Home";
-            case routes.login:
-                return "Login";
+            case routes.login_candidate:
+                return "Login For Candidate";
+            case routes.login_recruiter:
+                return "Login For Recruiter";
             case routes.register:
                 return "Registry";
+            case routes.job_description: 
+                return "Job Description";
             case routes.cv_matching:
                 return "CV Matching";
             case routes.code_problem:
@@ -61,7 +67,8 @@ const AppRoutes = () => {
             </HelmetProvider>
 
             <Routes>
-                <Route path={routes.login} element={<Login />} />
+                <Route path={routes.login_recruiter} element={<LoginRecruiter />} />
+                <Route path={routes.login_candidate} element={<LoginCandidate />} />
                 {/* <Route path={routes.register} element={<SignUp />} /> */}
                 <Route path={routes.forbidden} element={<Forbidden />} />
                 <Route path={routes.pageNotFound} element={<PageNotFound />}></Route>
@@ -69,6 +76,15 @@ const AppRoutes = () => {
                 <Route path={routes.home} element={<Home />} />
 
                 <Route element={<Layout />}>
+                    <Route
+                        path={routes.job_description}
+                        element={
+                            <PrivateRoute requiredRole="recruiter">
+                                <JobDescription />
+                            </PrivateRoute>
+                        }
+                    />
+
                     <Route
                         path={routes.cv_matching}
                         element={

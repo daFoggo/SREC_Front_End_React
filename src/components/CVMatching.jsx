@@ -1,342 +1,342 @@
-import { DataGrid } from "@mui/x-data-grid";
-import VisibilityIcon from '@mui/icons-material/Visibility';
-import ForwardToInboxIcon from '@mui/icons-material/ForwardToInbox';
-import JobDescriptionModal from "./Modal/JobDescriptionModal";
-import CandidateModal from "./Modal/CandidateModal";
-import { useMediaQuery, useTheme, Autocomplete, TextField, Button, Dialog, DialogTitle, DialogContent, DialogActions, List, ListItem, ListItemButton, ListItemText } from '@mui/material';
-import { useEffect, useState } from 'react';
-import PageLoadingOverlay from "./PageLoadingOverlay";
-import { rootAPI } from '../utils/ip';
+import React from 'react';
+import { useState, useEffect } from 'react';
+import { useAuth } from '../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { useCVMatching } from "../context/CVMatchingContext";
-import ConfirmModal from "./Modal/ConfirmModal";
-import { useAlert } from '../context/AlertContext';
-import ChangeCircleOutlinedIcon from '@mui/icons-material/ChangeCircleOutlined';
-import { useAuth } from "../context/AuthContext";
-import { Tooltip } from "@mui/material";
+import { rootAPI } from '../utils/ip';
+import routes from '../routes/routeConfig';
+import {
+  Button, Tooltip, Typography, CircularProgress,
+  Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, IconButton,
+  Checkbox, Menu, MenuItem, ListItemText, ListItemIcon
+} from '@mui/material';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import MailIcon from '@mui/icons-material/Mail';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import JoinInnerOutlinedIcon from '@mui/icons-material/JoinInnerOutlined';
+import PercentIcon from '@mui/icons-material/Percent';
+import PeopleIcon from '@mui/icons-material/People';
+import CandidateModal from './Modal/CandidateModal';
+import ConfirmModal from './Modal/ConfirmModal';
 
 const CVMatching = () => {
-  const { showAlert } = useAlert();
-  const { user } = useAuth();
-  const { CVMatchingData = [], jobDescriptionData, updateCVMatchingData, updateJobDescriptionData } = useCVMatching();
-  const [loading, setLoading] = useState(true);
-  const [selectedJobId, setSelectedJobId] = useState(0);
-  const [selectedCandidate, setSelectedCandidate] = useState({});
-  const [selectedCandidateNumber, setSelectedCandidateNumber] = useState(1);
-  const [isJobModalOpen, setIsJobModalOpen] = useState(false);
+  const [rankingData, setRankingData] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
   const [isCandidateModalOpen, setIsCandidateModalOpen] = useState(false);
-  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
-  const [isSelectJobDialogOpen, setIsSelectJobDialogOpen] = useState(false);
-  const [isEmailSent, setIsEmailSent] = useState(false);
-  const theme = useTheme();
-  const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
-
-  const candidateNumbers = [1, 10, 50, 100, 500, 1000];
+  const [isSingleMailModalOpen, setIsSingleMailModalOpen] = useState(false);
+  const [isMultiMailModalOpen, setIsMultiMailModalOpen] = useState(false);
+  const [selectedCandidateID, setSelectedCandidateID] = useState(null);
+  const [isSendingEmail, setIsSendingEmail] = useState(false);
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [selectedOption, setSelectedOption] = useState(null);
+  const { user } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
-    if (selectedJobId !== null) {
-      localStorage.setItem("job_id", selectedJobId);
-      setLoading(true);
-      Promise.all([getJobDescriptionData(), getCVMatchingData()])
-        .then(() => setLoading(false))
-        .catch((error) => {
-          console.error("Error fetching data:", error);
-          setLoading(false);
-        });
+    if (user.sub.role === 'recruiter') {
+      handleGetRankingData();
+    } else {
+      navigate(routes.forbidden);
     }
-  }, [selectedJobId]);
+  }, [user, navigate]);
 
-  const getJobDescriptionData = async () => {
+  const handleGetRankingData = async () => {
     try {
-      const response = await axios.get(`${rootAPI}/job-descriptions`);
-      updateJobDescriptionData(response.data);
-    } catch (error) {
-      console.error("Error fetching job descriptions:", error);
-      throw error;
-    }
-  };
-
-  const getCVMatchingData = async () => {
-    try {
-      const cvMatchingResponse = await axios.post(`${rootAPI}/cvs-matching`, {
-        id: selectedJobId,
+      setIsLoading(true);
+      const response = await axios.post(`${rootAPI}/get-ranked-candidates`, {
+        id: localStorage.getItem('selected_job'),
       });
-      updateCVMatchingData(cvMatchingResponse.data);
+      const sortedData = response.data.sort((a, b) => b.cv_matching - a.cv_matching);
+      setRankingData(sortedData);
     } catch (error) {
-      console.error("Error fetching CV matching data:", error);
-      throw error;
+      console.error(error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
-
-  const handleSendEmail = async () => {
-    const filteredRows = rows.filter(candidate => candidate.gmail !== "none");
-    const sortedRows = filteredRows.sort((a, b) => b.matching_point - a.matching_point);
-    const topCandidates = sortedRows.slice(0, selectedCandidateNumber);
-    topCandidates.push(
-      {
-        name: "Test",
-        gmail: "accpgrnay2@gmail.com",
-        level: "middle"
-      }
-    )
-
+  const handleSendGmail = async (candidates) => {
     try {
-      setIsEmailSent(true);
-
+      setIsSendingEmail(true);
       const response = await axios.post(`${rootAPI}/generate-account-and-send-email`, {
         recruiter_id: user.sub.id,
-        candidates: topCandidates.map(candidate => ({
-          name: candidate.name,
-          gmail: candidate.gmail,
-          level: jobDescriptionData[selectedJobId].level,
-          matching_score: candidate.matching_score,
-        })),
-        job_id: selectedJobId,
+        job_id: localStorage.getItem("selected_job"),
+        job_level: localStorage.getItem("level"),
+        candidates: candidates
       });
-
-      showAlert({
-        message: response.data.msg,
-        type: "success"
-      });
-      setIsEmailSent(false);
-      handleCloseConfirmModal();
+      console.log('Email sent successfully:', response.data);
+      // You might want to show a success message to the user here
     } catch (error) {
-      console.error("Failed to send emails:", error);
-      showAlert({
-        message: "Failed to send emails",
-        type: "error"
-      });
-      setIsEmailSent(false);
+      console.error('Error sending email:', error);
+      // You might want to show an error message to the user here
+    } finally {
+      setIsSendingEmail(false);
+      setIsSingleMailModalOpen(false);
+      setIsMultiMailModalOpen(false);
     }
   };
 
-  const handleSendSingleEmail = async (candidate) => {
-    try {
-      setIsEmailSent(true);
+  const handleOpenCandidateModal = (candidateID) => {
+    setSelectedCandidateID(candidateID);
+    setIsCandidateModalOpen(true);
+  };
 
-      const response = await axios.post(`${rootAPI}/generate-account-and-send-email`, {
-        recruiter_id: user.sub.id,
-        candidates: [{
-          name: candidate.name,
-          gmail: candidate.gmail,
-          level: jobDescriptionData[selectedJobId].level
-        },
-        {
-          name: "Test",
-          gmail: "accpgrnay2@gmail.com",
-          level: "middle"
-        }
-        ]
-      });
+  const handleOpenMenu = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
 
-      showAlert({
-        message: response.data.msg,
-        type: "success"
-      });
-      setIsEmailSent(false);
-    } catch (error) {
-      console.error("Failed to send email:", error);
-      showAlert({
-        message: "Failed to send email",
-        type: "error"
-      });
-      setIsEmailSent(false);
+  const handleCloseMenu = () => {
+    setAnchorEl(null);
+  };
+
+  const handleSelectOption = (option) => {
+    setSelectedOption(option);
+    handleCloseMenu();
+    setIsMultiMailModalOpen(true);
+  };
+
+  const getSelectedCandidates = () => {
+    switch (selectedOption) {
+      case '1/3':
+        return rankingData.slice(0, Math.floor(rankingData.length / 3));
+      case '1/2':
+        return rankingData.slice(0, Math.floor(rankingData.length / 2));
+      case '5':
+        return rankingData.slice(0, 5);
+      case '10':
+        return rankingData.slice(0, 10);
+      case '50':
+        return rankingData.slice(0, 50);
+      case '100':
+        return rankingData.slice(0, 100);
+      case 'all':
+        return rankingData;
+      default:
+        return [];
     }
-  }
-
-  const handleNumberChange = (event, value) => {
-    setSelectedCandidateNumber(value);
   };
 
-  const handleOpenJobModal = () => {
-    setIsJobModalOpen((prev) => !prev);
+  const capitalizeWords = (str) => {
+    return str.replace(/\b\w/g, char => char.toUpperCase());
   };
-
-  const handleCloseJobModal = () => {
-    setIsJobModalOpen((prev) => !prev);
-  };
-
-  const handleOpenCandidateModal = (candidate) => {
-    setSelectedCandidate(candidate)
-    setIsCandidateModalOpen((prev) => !prev);
-  };
-
-  const handleCloseCandidateModal = () => {
-    setSelectedCandidate({})
-    setIsCandidateModalOpen((prev) => !prev);
-  };
-
-  const handleOpenConfirmModal = () => {
-    setIsConfirmModalOpen((prev) => !prev);
-  };
-
-  const handleCloseConfirmModal = () => {
-    setIsConfirmModalOpen((prev) => !prev);
-  };
-
-  const handleOpenSelectJobDialog = () => {
-    setIsSelectJobDialogOpen(true);
-  };
-
-  const handleCloseSelectJobDialog = () => {
-    setIsSelectJobDialogOpen(false);
-  };
-
-  const handleSelectedJobId = (id) => {
-    setSelectedJobId(id);
-    setIsSelectJobDialogOpen(false);
-  };
-
-  const rows = CVMatchingData ? CVMatchingData.map((candidate, index) => ({
-    id: index + 1,
-    name: candidate.name,
-    age: candidate.age,
-    personality: candidate.personality,
-    gmail: candidate.gmail,
-    academic: candidate.academic,
-    major: candidate.major,
-    experience: candidate.experience,
-    skills: candidate.skills,
-    language: candidate.language,
-    certificate: candidate.certificate,
-    matching_score: candidate.cv_matching * 100,
-  })) : [];
 
   const columns = [
-    { field: "id", headerName: "ID", flex: isSmallScreen ? undefined : 0.5, width: isSmallScreen ? 70 : undefined },
-    { field: "name", headerName: "Name", flex: isSmallScreen ? undefined : 1, width: isSmallScreen ? 150 : undefined },
-    { field: "age", headerName: "Age", flex: isSmallScreen ? undefined : 1, width: isSmallScreen ? 150 : undefined },
-    { field: "gmail", headerName: "Gmail", flex: isSmallScreen ? undefined : 1, width: isSmallScreen ? 150 : undefined },
-    { field: "skills", headerName: "Skills", flex: isSmallScreen ? undefined : 1, width: isSmallScreen ? 150 : undefined },
-    { field: "certificate", headerName: "Certificate", flex: isSmallScreen ? undefined : 1, width: isSmallScreen ? 150 : undefined },
-    { field: "matching_score", headerName: "Matching Score", type: "number", flex: isSmallScreen ? undefined : 1, width: isSmallScreen ? 150 : undefined },
-    {
-      field: "actions",
-      headerName: "Actions",
-      flex: isSmallScreen ? undefined : 1,
-      width: isSmallScreen ? 200 : undefined,
-      renderCell: (params) => (
-        <div>
-          <Tooltip title="View full data">
-            <Button variant="text" onClick={() => handleOpenCandidateModal(params.row)}>
-              <VisibilityIcon />
-            </Button>
-          </Tooltip>
-          <Tooltip title="Send email">
-            <Button variant="text" onClick={
-              () => {
-                handleSendSingleEmail({
-                  name: params.row.name,
-                  gmail: params.row.gmail,
-                })
-              }
-            }>
-              <ForwardToInboxIcon />
-            </Button>
-          </Tooltip>
-        </div>
-      ),
-    },
+    { id: 'id', label: 'ID', minWidth: 50 },
+    { id: 'name', label: 'Name', minWidth: 150 },
+    { id: 'age', label: "Age / Date of birth", minWidth: 100 },
+    { id: 'gmail', label: 'Gmail', minWidth: 150 },
+    { id: 'academic', label: 'Academic', minWidth: 200 },
+    { id: 'skills', label: 'Skills', minWidth: 200 },
+    { id: 'cv_matching', label: 'Matching score', minWidth: 50 },
+    { id: 'actions', label: 'Actions', minWidth: 100 },
   ];
 
-  if (loading) return <PageLoadingOverlay />;
+  const getColorForCVMatching = (cv_matching, sortedData) => {
+    const third = Math.floor(sortedData.length / 3);
+    const half = Math.floor(sortedData.length / 2);
+    const index = sortedData.findIndex(row => row.cv_matching === cv_matching);
+
+    if (index < third) {
+      return '#10a1fc';
+    } else if (index < half) {
+      return '#005ea9';
+    } else {
+      return '#074373';
+    }
+  };
 
   return (
     <div className="p-2 sm:py-12 sm:px-36">
-      <p className="font-bold text-sm text-slate-500 pl-2">Job</p>
-      <div className="flex items-center text-center mb-2">
-        <Tooltip title="Click to view job description">
-          <Button onClick={handleOpenJobModal}>
-            <h1 className="font-bold text-2xl sm:text-4xl text-primary950 text-left">
-              {jobDescriptionData && jobDescriptionData[selectedJobId]
-                ? jobDescriptionData[selectedJobId].title
-                : "No job selected"}
-            </h1>
-          </Button>
-        </Tooltip>
-        <Tooltip title="Click to change the job">
-          <Button onClick={handleOpenSelectJobDialog}>
-            <ChangeCircleOutlinedIcon />
-          </Button>
-        </Tooltip>
-      </div>
-      <DataGrid
-        rows={rows}
-        columns={columns}
-        initialState={{
-          pagination: {
-            paginationModel: {
-              pageSize: 10,
-            },
-          },
-        }}
-        pageSizeOptions={[10]}
-        getCellClassName={(params) => {
-          if (params.field === "matching_point") {
-            return "text-blue-500 font-bold";
-          }
-        }}
-        sx={{
-          backgroundColor: "white",
-          padding: "5px",
-        }}
-      ></DataGrid>
-
-      <div className="flex gap-5 mt-5 w-full sm:w-1/4">
-        <Autocomplete
-          value={selectedCandidateNumber}
-          onChange={handleNumberChange}
-          options={candidateNumbers}
-          getOptionLabel={(option) => option.toString()}
-          renderInput={(params) => (
-            <TextField {...params} label="Select the number of top candidates" variant="filled" />
-          )}
+      <div className="mb-6">
+        <Button
+          variant="contained"
           sx={{
-            flex: 1,
+            backgroundColor: 'white',
+            color: '#052b4c',
+            borderRadius: '50%',
+            width: '40px',
+            height: '40px',
+            marginRight: 2,
+            minWidth: 0,
+            "&:hover": {
+              backgroundColor: "#052b4c",
+              color: "white",
+            },
           }}
-        />
-        <button className="bg-primary500 hover:bg-primary600 text-white font-semibold rounded-lg py-2 px-5" onClick={handleOpenConfirmModal}>
-          Send email
-        </button>
+          onClick={() => {
+            navigate(routes.job_description);
+          }}
+        >
+          <ArrowBackIcon />
+        </Button>
+        <Button variant="text" sx={{
+          color: "#052b4c",
+          width: "fit-content",
+        }}>
+          <JoinInnerOutlinedIcon
+            sx={{
+              fontSize: 40,
+              marginRight: 1,
+            }}
+          />
+          <h1 className="font-bold text-3xl">CV matching</h1>
+        </Button>
       </div>
+      {isLoading ? (
+        <CircularProgress />
+      ) : (
+        <>
+          <Button
+            variant="contained"
+            onClick={handleOpenMenu}
+            sx={{ marginBottom: 2, backgroundColor: '#10a1fc', color: 'white' }}
+          >
+            Send Bulk Emails
+          </Button>
+          <Menu
+            anchorEl={anchorEl}
+            open={Boolean(anchorEl)}
+            onClose={handleCloseMenu}
+          >
+            <MenuItem onClick={() => handleSelectOption('1/3')}>
+              <ListItemIcon>
+                <PercentIcon fontSize="small" />
+              </ListItemIcon>
+              <ListItemText>Top 1/3</ListItemText>
+            </MenuItem>
+            <MenuItem onClick={() => handleSelectOption('1/2')}>
+              <ListItemIcon>
+                <PercentIcon fontSize="small" />
+              </ListItemIcon>
+              <ListItemText>Top 1/2</ListItemText>
+            </MenuItem>
+            <MenuItem onClick={() => handleSelectOption('all')}>
+              <ListItemIcon>
+                <PercentIcon fontSize="small" />
+              </ListItemIcon>
+              <ListItemText>All</ListItemText>
+            </MenuItem>
+            <MenuItem onClick={() => handleSelectOption('5')}>
+              <ListItemIcon>
+                <PeopleIcon fontSize="small" />
+              </ListItemIcon>
+              <ListItemText>Top 5</ListItemText>
+            </MenuItem>
+            <MenuItem onClick={() => handleSelectOption('10')}>
+              <ListItemIcon>
+                <PeopleIcon fontSize="small" />
+              </ListItemIcon>
+              <ListItemText>Top 10</ListItemText>
+            </MenuItem>
+            <MenuItem onClick={() => handleSelectOption('50')}>
+              <ListItemIcon>
+                <PeopleIcon fontSize="small" />
+              </ListItemIcon>
+              <ListItemText>Top 50</ListItemText>
+            </MenuItem>
+            <MenuItem onClick={() => handleSelectOption('100')}>
+              <ListItemIcon>
+                <PeopleIcon fontSize="small" />
+              </ListItemIcon>
+              <ListItemText>Top 100</ListItemText>
+            </MenuItem>
+          </Menu>
+          <TableContainer component={Paper}>
+            <Table stickyHeader aria-label="sticky table">
+              <TableHead>
+                <TableRow>
+                  {columns.map((column) => (
+                    <TableCell
+                      key={column.id}
+                      style={{ minWidth: column.minWidth }}
+                    >
+                      <Typography variant="subtitle1" fontWeight="bold">
+                        {column.label}
+                      </Typography>
+                    </TableCell>
+                  ))}
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {rankingData.map((row, rowIndex) => (
+                  <TableRow hover role="checkbox" tabIndex={-1} key={rowIndex}>
+                    {columns.map((column) => {
+                      const value = row[column.id];
+                      const formattedValue = column.id === 'id'
+                        ? rowIndex + 1
+                        : column.id === 'gmail'
+                          ? value
+                          : column.id === 'cv_matching'
+                            ? value.toFixed(2)
+                            : typeof value === 'string'
+                              ? capitalizeWords(value !== "none" ? value : 'N/A')
+                              : '';
 
-      <JobDescriptionModal isModalOpen={isJobModalOpen} handleCloseModal={handleCloseJobModal} jobDescriptionData={jobDescriptionData[selectedJobId]}></JobDescriptionModal>
-      <CandidateModal isModalOpen={isCandidateModalOpen} handleCloseModal={handleCloseCandidateModal} candidateData={selectedCandidate}></CandidateModal>
+                      return (
+                        <TableCell
+                          key={column.id}
+                          style={column.id === 'cv_matching'
+                            ? { color: getColorForCVMatching(value, rankingData) }
+                            : {}}
+                        >
+                          {column.id === 'actions' ? (
+                            <>
+                              <Tooltip title="View CV" onClick={() => handleOpenCandidateModal(rowIndex)}>
+                                <IconButton>
+                                  <VisibilityIcon sx={{ "color": "#10a1fc" }} />
+                                </IconButton>
+                              </Tooltip>
+                              <Tooltip title="Send Email">
+                                <IconButton onClick={() => {
+                                  setSelectedCandidateID(rowIndex);
+                                  setIsSingleMailModalOpen(true);
+                                }}>
+                                  <MailIcon sx={{ "color": "#10a1fc" }} />
+                                </IconButton>
+                              </Tooltip>
+                            </>
+                          ) : (
+                            <Typography variant="body2">
+                              {formattedValue}
+                            </Typography>
+                          )}
+                        </TableCell>
+                      );
+                    })}
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </>
+      )}
+
+      {selectedCandidateID !== null && (
+        <CandidateModal
+          isModalOpen={isCandidateModalOpen}
+          handleCloseModal={() => setIsCandidateModalOpen(false)}
+          candidateData={rankingData[selectedCandidateID]}
+        />
+      )}
 
       <ConfirmModal
-        isModalOpen={isConfirmModalOpen}
-        handleCloseModal={handleCloseConfirmModal}
-        modalTitle="Are you sure want to send the emails"
-        modalDescription={`The email which include account information will be sent to ${selectedCandidateNumber} candidates.`}
-        loadingRunSubmit={isEmailSent}
-        handleRunSubmit={handleSendEmail}
-      >
-      </ConfirmModal>
+        isModalOpen={isSingleMailModalOpen}
+        handleCloseModal={() => setIsSingleMailModalOpen(false)}
+        loadingRunSubmit={isSendingEmail}
+        handleRunSubmit={() => handleSendGmail([rankingData[selectedCandidateID]])}
+        modalDescription="Are you sure you want to send an email to this candidate?"
+        modalTitle="Send email"
+      />
 
-      {/* Select Job Dialog */}
-      <Dialog open={isSelectJobDialogOpen} onClose={handleCloseSelectJobDialog}>
-        <DialogTitle sx={{
-          fontSize: "1.5rem",
-          fontWeight: "bold",
-          color: "#052b4c"
-        }}>Select Job</DialogTitle>
-        <DialogContent>
-          <List>
-            {jobDescriptionData.map((job, index) => (
-              <ListItem key={index} disablePadding>
-                <p className="font-bold text-primary800">{index + 1}. </p>
-                <ListItemButton onClick={() => handleSelectedJobId(job.id)}>
-                  <ListItemText primary={job.title} />
-                </ListItemButton>
-              </ListItem>
-            ))}
-          </List>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseSelectJobDialog}>Cancel</Button>
-        </DialogActions>
-      </Dialog>
+      <ConfirmModal
+        isModalOpen={isMultiMailModalOpen}
+        handleCloseModal={() => setIsMultiMailModalOpen(false)}
+        loadingRunSubmit={isSendingEmail}
+        handleRunSubmit={() => handleSendGmail(getSelectedCandidates())}
+        modalDescription={`Are you sure you want to send emails to ${getSelectedCandidates().length} candidates (${selectedOption})?`}
+        modalTitle="Send bulk emails"
+      />
+
     </div>
   );
 };

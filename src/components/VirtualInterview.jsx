@@ -45,7 +45,7 @@ const VirtualInterview = () => {
 
   useEffect(() => {
     if (!user) {
-      navigate(routes.login);
+      navigate(routes.login_candidate);
     } else {
       if (currentQuestion === 5) {
         navigate(routes.thank_you);

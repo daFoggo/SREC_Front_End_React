@@ -18,6 +18,7 @@ import MenuItem from "@mui/material/MenuItem";
 
 import { candidateNavLists, recruiterNavLists, userDropdown } from "../constants";
 import { logo } from "../utils";
+import routes from "../routes/routeConfig";
 
 const NavBar = () => {
   const [anchorElNav, setAnchorElNav] = useState(null);
@@ -57,26 +58,20 @@ const NavBar = () => {
       message: "Logout successful",
       type: "success",
     });
-    navigate("/login");
+    if ( user.sub.role === "recruiter" ) {
+      navigate(routes.login_recruiter);
+    } else {
+      navigate(routes.login_candidate);
+    }
   };
 
   const handleBackToHome = () => {
-    navigate("/");
+    navigate(routes.home);
   };
-
- 
-  document.addEventListener("scroll", function() {
-    let header = document.querySelector("header");
-    if (window.pageYOffset > 74) {
-      header.classList.add('sticky'); // Change background color on scroll
-    } else {
-      header.classList.remove('sticky');  // Default background color
-    }
-  });
 
   return (
     <AppBar
-      position="static"
+      position="sticky"
       sx={{ backgroundColor: "#10a1fc", color: "white", boxShadow: "none" }}
     >
       <Container maxWidth="xl">
