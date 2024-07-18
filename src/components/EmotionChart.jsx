@@ -1,27 +1,47 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import Highcharts from 'highcharts';
-import HighchartsReact from 'highcharts-react-official'
+import HighchartsReact from 'highcharts-react-official';
 
-export default ({dataChart}) => {
+const EmotionChart = ({ dataChart }) => {
+  useEffect(() => {
+    console.log("EmotionChart rendered with dataChart:", dataChart);
+  }, [dataChart]);
+
+  if (!Array.isArray(dataChart) || dataChart.length === 0) {
+    console.log("dataChart is not a valid array or is empty");
+    return <div>No data available for emotion chart</div>;
+  }
+
+  const series = dataChart.map(item => ({
+    ...item,
+    data: item.data.map(value => parseFloat(value) || 0)  
+  }));
+
+  console.log("Processed series data:", series);
+
   const options = {
     chart: {
       type: 'area'
     },
     title: {
-      useHTML: true,
-      text: 'Title of chart',
+      text: 'Emotion Analysis Over Time',
       align: 'left'
     },
     subtitle: {
-      text: 'Source: ' +
-        '<a href="https://energiogklima.no/klimavakten/land-med-hoyest-utslipp/"' +
-        'target="_blank">description</a>',
+      text: 'Source: Video Prediction Data',
       align: 'left'
     },
-    accessibility: {
-      point: {
-        valueDescriptionFormat: '{index}. {point.category}, {point.y:,' +
-          '.1f} billions, {point.percentage:.1f}%.'
+    xAxis: {
+      title: {
+        text: 'Time (seconds)'
+      },
+      categories: series[0]?.data.map((_, index) => index.toString()) || [],
+      labels: {
+        formatter: function () {
+          // Hiển thị chỉ một điểm trên trục X
+          const labelIndex = Math.round(this.value);
+          return labelIndex % 2 === 0 ? this.value : ''; // Chỉ hiển thị một số điểm
+        }
       }
     },
     yAxis: {
@@ -29,32 +49,37 @@ export default ({dataChart}) => {
         format: '{value}%'
       },
       title: {
-        enabled: false
+        text: 'Emotion Intensity'
       }
     },
     tooltip: {
-      pointFormat: '<span style="color:{series.color}">{series.name}</span>' +
-        ': <b>{point.percentage:.1f}%</b> ({point.y:,.1f} billion Gt)<br/>',
-      split: true
+      pointFormat: '<span style="color:{series.color}">{series.name}</span>: <b>{point.y:.2f}%</b><br/>',
+      shared: true
     },
     plotOptions: {
-      series: {
-        pointStart: 1990
-      },
       area: {
         stacking: 'percent',
+        lineColor: '#ffffff',
+        lineWidth: 1,
         marker: {
-          enabled: false
+          lineWidth: 1,
+          lineColor: '#ffffff'
         }
       }
     },
-    series: dataChart
-  }
+    series: series
+  };
+
+  console.log("Highcharts options:", options);
 
   return (
-    <HighchartsReact
-      highcharts={Highcharts}
-      options={options}
-    />
-  )
-}
+    <div style={{width: '100%', height: '400px'}}>
+      <HighchartsReact
+        highcharts={Highcharts}
+        options={options}
+      />
+    </div>
+  );
+};
+
+export default EmotionChart;

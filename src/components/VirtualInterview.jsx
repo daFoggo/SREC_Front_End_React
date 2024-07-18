@@ -229,20 +229,21 @@ const VirtualInterview = () => {
   }
 
   return (
-    <div className="h-full flex flex-col sm:flex-row justify-between py-2 sm:py-0 gap-3 sm:gap-0" style={{minHeight: 'calc(100vh - 74px)'}}>
-      <div className="flex flex-col gap-5 flex-1 items-center justify-center">
+    <div className="h-full flex flex-col lg:flex-row justify-between py-2 lg:py-0 gap-3 lg:gap-0" style={{minHeight: 'calc(100vh - 74px)'}}>
+      <div className="flex flex-col gap-5 flex-1 items-center justify-center p-4">
         <Webcam
           audio={!isMuting}
           ref={webcamRef}
-          height={"70%"}
-          width={"70%"}
+          height={"auto"}
+          width={"100%"}
           videoConstraints={videoConstraints}
           style={{
             borderRadius: "10px",
             boxShadow: "0 4px 4px rgba(0, 0, 0, 0.2)",
+            maxWidth: "800px",
           }}
         />
-        <div className="flex gap-3">
+        <div className="flex gap-3 mt-4">
           {isMuting ? (
             <Tooltip title="Allow audio">
               <Button variant="contained" sx={{
@@ -299,12 +300,14 @@ const VirtualInterview = () => {
         </div>
       </div>
 
-      <div className="bg-white gap-5 h-full w-full sm:w-1/3 flex flex-col shadow-md py-10 px-5" style={{height: 'auto'}}>
-        <div className=" w-full rounded-md px-32 sm:px-52">
-          <Base64VideoPlayer 
-            base64String={interviewData[0]?.question_id ? (getQuestion(interviewData[0]?.question_id)?.video_data) : null} 
-            play={playVideo}
-          />
+      <div className="bg-white gap-5 h-full w-full lg:w-1/3 flex flex-col shadow-md py-6 px-4" style={{height: 'auto'}}>
+        <div className="w-full rounded-md px-16 lg:px-24 mb-4">
+          {interviewData && interviewData[0] && getQuestion(interviewData[0]?.question_id) && (
+            <Base64VideoPlayer 
+              base64String={getQuestion(interviewData[0]?.question_id)?.video_data}
+              play={playVideo}
+            />
+          )}
         </div>
 
         {countdown !== null ? (
@@ -319,9 +322,10 @@ const VirtualInterview = () => {
         ) : (
           <div className='flex flex-col gap-2 text-left bg-primary200 rounded-md p-3'>
             <h1 className="font-semibold text-2xl">Note</h1>
-            <p>To <b>start the interview</b>, click on the <b>middle button</b> below the Webcam. <br />
+            <p className="text-sm lg:text-base">
+              To <b>start the interview</b>, click on the <b>middle button</b> below the Webcam. <br />
               When you <b>finish your answer</b>, you <b>must click on it</b> again to start the next question. <br />
-              After <b>finishing all</b> the question, you will be <b>redirected</b> to the next round. <br />
+              After <b>finishing all</b> the questions, you will be <b>redirected</b> to the next round. <br />
             </p>
           </div>
         )}

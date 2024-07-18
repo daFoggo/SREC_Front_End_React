@@ -46,6 +46,7 @@ const Survey = () => {
     const payload = [{
       candidate_id: user.sub.id,
       description: data.description,
+      status: "1",
       Answer: data
     }];
 
@@ -56,7 +57,8 @@ const Survey = () => {
         message: "Submit survey successfully",
         type: 'success',
       });
-      console.log(response.data);
+
+
     } catch (err) {
       showAlert({
         message: "Something went wrong",

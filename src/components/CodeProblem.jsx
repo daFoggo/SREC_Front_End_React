@@ -45,6 +45,8 @@ const CodeProblem = () => {
         job_level: user.sub.job_level,
       });
 
+      console.log("Code assessment data: ", response.data);
+
       handleUpdateAssessmentData(response.data.assessment_data);
       handleUpdateProblemData(response.data.problem_data);
     } catch (error) {
@@ -58,7 +60,6 @@ const CodeProblem = () => {
   let problemKeys = Object.keys(problemData);
   let problemKey = problemKeys[0];
   let singleProblem = problemData[problemKey];
-
   if (isLoading || !singleProblem) {
     return <PageLoadingOverlay />;
   }

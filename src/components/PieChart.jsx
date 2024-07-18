@@ -3,7 +3,6 @@ import Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official'
 
 export default ({ dataChart }) => {
-    console.log(dataChart)
     const options = {
         chart: {
             type: 'pie'

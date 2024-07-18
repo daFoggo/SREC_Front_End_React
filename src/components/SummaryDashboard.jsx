@@ -12,9 +12,10 @@ import JoinInnerIcon from '@mui/icons-material/JoinInner';
 import CodeIcon from '@mui/icons-material/Code';
 import EastIcon from '@mui/icons-material/East';
 import WestIcon from '@mui/icons-material/West';
-import VoicePredictionCharts from "./VoicePredictionChart";
+import VoicePredictionChart from "./VoicePredictionChart";
 import EmotionChart from "./EmotionChart";
 import PieChart from "./PieChart";
+import PersonalityChart from "./PersonalityChart";
 
 const SummaryDashboard = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -22,6 +23,7 @@ const SummaryDashboard = () => {
   const [candidateData, setCandidateData] = useState({});
   const [assessmentData, setAssessmentData] = useState([]);
   const [matchingScoreData, setMatchingScoreData] = useState(null);
+  const [personalityData, setPersonalityData] = useState([]);
   const [virtualInterviewData, setVirtualInterviewData] = useState([]);
   const [selectedQuestion, setSelectedQuestion] = useState(0);
   const [finalScoreData, setFinalScoreData] = useState(null);
@@ -34,6 +36,7 @@ const SummaryDashboard = () => {
       Promise.all([
         handleGetCVMatchingScore(),
         handleGetFinalCodeScore(),
+        handleGetPersonalityScore(),
         handleGetVirtualInterviewScore()
       ]).then(() => setIsLoading(false))
         .catch(err => {
@@ -63,7 +66,7 @@ const SummaryDashboard = () => {
       const response = await axios.post(`${rootAPI}/get-final-code-score`, {
         candidate_id: localStorage.getItem('selected_candidate_id')
       });
-      setFinalScoreData(response.data.final_score || null);
+      setFinalScoreData(response.data.final_score !== undefined ? response.data.final_score : null);
       setAssessmentData(response.data.assessment_data || []);
     } catch (error) {
       console.error("Error fetching final code score:", error);
@@ -71,6 +74,18 @@ const SummaryDashboard = () => {
       setAssessmentData([]);
     }
   };
+
+  const handleGetPersonalityScore = async () => {
+    try {
+      const response = await axios.post(`${rootAPI}/get-summary-survey`, {
+        candidate_id: localStorage.getItem('selected_candidate_id')
+      });
+      setPersonalityData(response.data || []);
+    } catch (error) {
+      console.error("Error fetching personality score:", error);
+      setPersonalityData(null);
+    }
+  }
 
   const handleGetVirtualInterviewScore = async () => {
     try {
@@ -104,14 +119,14 @@ const SummaryDashboard = () => {
     }));
   };
 
-  const renderPieChartData = (payload) => {
-    if (!payload) return [];
-    const emotions = ['angry', 'disgust', 'fear', 'happy', 'neutral', 'sad', 'surprise'];
-    return emotions.map(emotion => ({
-      name: emotion,
-      y: payload.reduce((acc, cur) => acc + cur.emotion[emotion], 0)
-    }));
-  };
+  // const renderPieChartData = (payload) => {
+  //   if (!payload) return [];
+  //   const emotions = ['angry', 'disgust', 'fear', 'happy', 'neutral', 'sad', 'surprise'];
+  //   return emotions.map(emotion => ({
+  //     name: emotion,
+  //     y: payload.reduce((acc, cur) => acc + cur.emotion[emotion], 0)
+  //   }));
+  // };
 
   if (isLoading) return <PageLoadingOverlay />;
   if (error) return <div className="text-red-500">{error}</div>;
@@ -166,14 +181,16 @@ const SummaryDashboard = () => {
             </div>
             <div className="bg-white shadow-md rounded-xl p-5 flex flex-col justify-center items-center relative min-h-[200px]">
               <p className="font-bold text-xl text-primary950 absolute top-3 left-3">Code assessment score</p>
-              <p className="font-bold text-3xl text-primary500">{finalScoreData !== null ? `${finalScoreData} / 3` : 'N/A'}</p>
+              <p className="font-bold text-3xl text-primary500">
+                {finalScoreData !== null ? `${finalScoreData} / 3` : 'N/A'}
+              </p>
               <span className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center opacity-25">
                 <CodeIcon sx={{ fontSize: 200, color: "#b7e2ff" }} />
               </span>
             </div>
             <div className="bg-white shadow-md rounded-xl p-5 flex flex-col justify-center items-center relative min-h-[200px]">
-              <p className="font-bold text-xl text-primary950 absolute top-3 left-3">Personality Trait</p>
-              {/* Add personality trait content here */}
+              <p className="font-bold text-xl text-primary950 absolute top-3 left-3 z-10">Personality Test</p>
+              {personalityData[0] ? <PersonalityChart personalityData={personalityData[0]} /> : <p className="font-bold text-3xl text-primary500">N/A</p>}
             </div>
           </div>
           <div className="flex flex-col gap-3 bg-white shadow-md rounded-xl p-5">
@@ -198,21 +215,35 @@ const SummaryDashboard = () => {
                   </p>
                   <p className="font-bold text-primary950">
                     Pronunciation score: {
-                      JSON.parse(virtualInterviewData[selectedQuestion].prediction_data || '{}')?.voice_prediction?.pronunciation_score ?? 'N/A'
+                      JSON.parse(virtualInterviewData[selectedQuestion].prediction_data || '{}')?.voice_prediction?.pronunciation_score.toFixed(2) ?? 'N/A'
                     }
                   </p>
                 </div>
+
                 <div>
                   <p className="font-bold text-primary900">Video analyze chart: </p>
-                  <div className="bg-primary50 rounded-xl p-2">
-                    <EmotionChart 
-                      dataChart={renderAreaChartData(JSON.parse(virtualInterviewData[selectedQuestion].prediction_data || '{}').video_prediction)} 
+                  <div className="rounded-xl p-2">
+                    <EmotionChart
+                      dataChart={renderAreaChartData(JSON.parse(virtualInterviewData[selectedQuestion].prediction_data || '{}').video_prediction)}
                     />
-                    <PieChart 
-                      dataChart={renderPieChartData(JSON.parse(virtualInterviewData[selectedQuestion].prediction_data || '{}').video_prediction)} 
+                  </div>
+
+                  <div className="rounded-xl p-2">
+                    {/* <PieChart
+                      dataChart={renderPieChartData(JSON.parse(virtualInterviewData[selectedQuestion].prediction_data || '{}').voice_prediction)}
+                    /> */}
+                  </div>
+                </div>
+
+                <div>
+                  <p className="font-bold text-primary900">Voice analyze chart: </p>
+                  <div className="rounded-xl p-2">
+                    <VoicePredictionChart
+                      voicePrediction={JSON.parse(virtualInterviewData[selectedQuestion].prediction_data || '{}').voice_prediction}
                     />
                   </div>
                 </div>
+                
               </div>
             )}
           </div>
