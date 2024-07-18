@@ -13,7 +13,7 @@ import propTypes from "prop-types";
 
 const languages = Object.entries(language_versions);
 
-const CodeEditor = ({ problemData }) => {
+const CodeEditor = ({ problemData, onFinishSave }) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [value, setValue] = useState("");
     const [language, setLanguage] = useState("cpp");
@@ -28,11 +28,6 @@ const CodeEditor = ({ problemData }) => {
     const { assessmentData, currentProblem, handleUpdateCurrentProblem } = useCode();
     const { user } = useAuth();
     const editorRef = useRef();
-
-
-    useEffect(() => {
-        console.log("TotalPoint updated:", totalPoint);
-    }, [totalPoint]);
 
     useEffect(() => {
         setValue(code_snippets[language]);
@@ -146,9 +141,7 @@ const CodeEditor = ({ problemData }) => {
 
                     const passed = (actualOutput.trim() === expectedOutput.trim());
                     if (!passed) {
-                        console.log(`Test case ${index + 1}: Failed`);
-                        console.log("Expected Output:", expectedOutput);
-                        console.log("Actual Output:", actualOutput);
+                        console.error(`Test case ${index + 1}: Failed`);
                     } else {
                         console.log(`Test case ${index + 1}: Passed`);
                     }
@@ -243,8 +236,6 @@ const CodeEditor = ({ problemData }) => {
         let code_solution = editorRef.current.getValue();
         let selected_language = language;
 
-        console.log(assessment_id, assessment_score, status, code_solution, selected_language);
-
         try {
             const response = await axios.put(`${rootAPI}/submit-code-assessment-scores`, {
                 assessment_id,
@@ -253,6 +244,7 @@ const CodeEditor = ({ problemData }) => {
                 code_solution,
                 selected_language
             });
+            onFinishSave();
         } catch (error) {
             console.error("An error occurred while submitting the code to the database:", error);
         } finally {

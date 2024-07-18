@@ -19,9 +19,7 @@ const FinalCodeScore = () => {
 
     useEffect(() => {
         if (user) {
-            setTimeout(() => {
-                handleGetFinalCodeScore();
-            }, 1000);
+            handleGetFinalCodeScore();
         }
     }, [user]);
 
@@ -75,7 +73,7 @@ const FinalCodeScore = () => {
                                         <p className='font-bold text-primary950 text-2xl'>Problem {index + 1}</p>
                                         <p className='font-bold  text-slate-500'>Score: {data.assessment_score} / 1</p>
                                         <div className='flex flex-col gap-3 mt-5'>
-                                            <TextField multiline label={"Code convention score"} value={data.code_convention_score}></TextField>
+                                            {data.code_convention_score === "Unable to score not-python file" ? null : <TextField multiline label={"Code convention score"} value={data.code_convention_score}></TextField>}
                                             <TextField multiline label={"Code convention comment"} value={data.code_convention_comment}></TextField>
                                         </div>
                                     </div>
@@ -97,7 +95,7 @@ const FinalCodeScore = () => {
                         <p className='text-primary950 text-lg'>Candidate Name: {user.sub.full_name} </p>
                         <p className='text-primary950 text-lg'> Candidate Level: {capitalizeFirstLetter(user.sub.job_level)} </p>
                     </div>
-                    
+
                     <button className='bg-primary500 hover:bg-primary600 py-3 px-5 text-white font-bold rounded-md mt-5' onClick={
                         () => {
                             navigate(routes.personality_test);

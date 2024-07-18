@@ -14,6 +14,7 @@ import { rootAPI } from '../utils/ip';
 import { useNavigate } from 'react-router-dom';
 import routes from '../routes/routeConfig';
 import PageLoadingOverlay from './PageLoadingOverlay';
+import Base64VideoPlayer from './Base64VideoPlayer';
 
 const VirtualInterview = () => {
   const { user } = useAuth();
@@ -29,6 +30,7 @@ const VirtualInterview = () => {
   const [question, setQuestion] = useState(null);
   const [countdown, setCountdown] = useState(null);
   const [showQuestion, setShowQuestion] = useState(false);
+  const [isInterviewFinished, setIsInterviewFinished] = useState(false);
 
   const navigate = useNavigate();
   const videoConstraints = {
@@ -98,8 +100,7 @@ const VirtualInterview = () => {
                 'Content-Type': 'application/json'
               }
             });
-  
-            console.log(response.data);
+
             resolve();
           } catch (error) {
             console.error('Error submitting video:', error);
@@ -129,7 +130,6 @@ const VirtualInterview = () => {
         }
       });
   
-      console.log(response.data.msg);
     } catch (error) {
       console.error('Error analyzing video:', error);
     } finally {
@@ -138,13 +138,13 @@ const VirtualInterview = () => {
     }
   };
 
-  const getAnswer = (questionId) => {
+  const getQuestion = (questionId) => {
     if (questionData && interviewData[0]) {
       for (let questionType in questionData) {
         if (questionData.hasOwnProperty(questionType)) {
           for (let question of questionData[questionType]) {
             if (question.question_id === questionId) {
-              return question.question;
+              return question
             }
           }
         }
@@ -181,7 +181,7 @@ const VirtualInterview = () => {
       handleDataAvailable
     );
     mediaRecorderRef.current.start();
-    setQuestion(getAnswer(interviewData[0].question_id));
+    setQuestion(getQuestion(interviewData[0].question_id).question);
     setShowQuestion(true);
   };
 
@@ -222,7 +222,7 @@ const VirtualInterview = () => {
   }
 
   return (
-    <div className="h-full flex flex-col sm:flex-row justify-between py-2 sm:py-0 gap-3 sm:gap-0">
+    <div className="h-full flex flex-col sm:flex-row justify-between py-2 sm:py-0 gap-3 sm:gap-0" style={{minHeight: 'calc(100vh - 74px)'}}>
       <div className="flex flex-col gap-5 flex-1 items-center justify-center">
         <Webcam
           audio={!isMuting}
@@ -292,9 +292,9 @@ const VirtualInterview = () => {
         </div>
       </div>
 
-      <div className="bg-white gap-5 h-full w-full sm:w-1/3 flex flex-col shadow-md py-10 px-5">
-        <div className="bg-primary100 w-full rounded-md h-1/3">
-          AI model
+      <div className="bg-white gap-5 h-full w-full sm:w-1/3 flex flex-col shadow-md py-10 px-5" style={{height: 'auto'}}>
+        <div className=" w-full rounded-md px-32 sm:px-52">
+          <Base64VideoPlayer base64String={interviewData[0].question_id ? (getQuestion(interviewData[0]?.question_id)?.video_data) : null} />
         </div>
 
         {countdown !== null ? (

@@ -11,7 +11,7 @@ import {
     Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, IconButton
 } from '@mui/material'
 import LaunchIcon from '@mui/icons-material/Launch'
-import DescriptionOutlinedIcon from '@mui/icons-material/DescriptionOutlined';
+import VisibilityIcon from '@mui/icons-material/Visibility';
 
 const JobDescription = () => {
     const [jobData, setJobData] = useState([])
@@ -45,12 +45,11 @@ const JobDescription = () => {
         navigate(routes.cv_matching)
     }
     const columns = [
-        { id: 'id', label: 'ID', minWidth: 50 },
+        { id: 'index', label: 'Index', minWidth: 50 },
         { id: 'title', label: 'Title', minWidth: 200 },
         { id: 'level', label: 'Level', minWidth: 100 },
         { id: 'number_of_candidates', label: 'Applied', minWidth: 100 },
         { id: 'data_string', label: 'Skills required', minWidth: 300 },
-        { id: 'description', label: 'Description', minWidth: 300 },
         { id: 'actions', label: 'Actions', minWidth: 100 },
     ]
 
@@ -61,12 +60,6 @@ const JobDescription = () => {
                     color: "#052b4c",
                     width: "fit-content",
                 }}>
-                    <DescriptionOutlinedIcon
-                        sx={{
-                            fontSize: 40,
-                            marginRight: 1,
-                        }}
-                    />
                     <h1 className="font-bold text-3xl">Job descriptions</h1>
                 </Button>
             </div>
@@ -90,15 +83,30 @@ const JobDescription = () => {
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            {jobData.map((row) => (
+                            {jobData.map((row, index) => (
                                 <TableRow hover role="checkbox" tabIndex={-1} key={row.id}>
-                                    {columns.map((column) => {
+                                    {columns.map((column, index) => {
+                                        if (column.id === 'index') {
+                                            return <TableCell key={index} sx={{
+                                                textAlign: "center",
+                                            }}>{index + 1}</TableCell>;
+                                        }
+                                        if (column.id === 'number_of_candidates') {
+                                            return <TableCell key={index} sx={{
+                                                textAlign: "center",
+                                            }}>{row.number_of_candidates}</TableCell>;
+                                        }
                                         if (column.id === 'actions') {
                                             return (
                                                 <TableCell key={column.id}>
+                                                    <Tooltip title="View job description">
+                                                        <IconButton onClick={() => navigate(routes.job_detail.replace(':id', row.id))}>
+                                                            <VisibilityIcon sx={{ "color": "#10a1fc" }} />
+                                                        </IconButton>
+                                                    </Tooltip>
                                                     <Tooltip title="Get CV matching data with this job">
                                                         <IconButton onClick={() => handleNavigateToCVMatching(row.id)}>
-                                                            <LaunchIcon sx={{"color": "#10a1fc"}}/>
+                                                            <LaunchIcon sx={{ "color": "#10a1fc" }} />
                                                         </IconButton>
                                                     </Tooltip>
                                                 </TableCell>

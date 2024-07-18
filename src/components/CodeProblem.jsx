@@ -12,6 +12,7 @@ import routes from "../routes/routeConfig";
 
 const CodeProblem = () => {
   const { assessmentData, currentProblem, problemData, handleUpdateAssessmentData, handleUpdateCurrentProblem, handleUpdateProblemData } = useCode();
+  const [redirect, setRedirect] = useState(false);
   const { user } = useAuth();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
@@ -20,13 +21,13 @@ const CodeProblem = () => {
     if (!user) {
       navigate(routes.login_candidate);
     } else {
-      if (currentProblem === 4) {
+      if (currentProblem === 4 && redirect) {
         navigate(routes.fina_code_assessment_score);
       } else {
         handleGetCodeAssessmentData();
       }
     }
-  }, [currentProblem]);
+  }, [currentProblem, redirect]);
 
   useEffect(() => {
     if (assessmentData && problemData && typeof currentProblem === 'number') {
@@ -127,7 +128,12 @@ const CodeProblem = () => {
         </div>
 
         <div className="w-full h-[100vh] sm:w-3/5 flex flex-col text-left gap-5">
-          <CodeEditor problemData={singleProblem} />
+          <CodeEditor problemData={singleProblem} onFinishSave={() => {
+            if(currentProblem+1===4) {
+              localStorage.setItem("is_code_assessment_done", true);
+              setRedirect(true);
+            }
+          }}/>
         </div>
       </div>
     </div>

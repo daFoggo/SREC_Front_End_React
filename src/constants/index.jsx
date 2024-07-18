@@ -50,7 +50,7 @@ export const recruiterNavLists = [
     },
     {
         id: 1,
-        title: "CV Matching",
+        title: "Candidate ranking",
         link: "/cv-matching"
     },
     {

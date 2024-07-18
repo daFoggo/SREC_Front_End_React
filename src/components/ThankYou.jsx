@@ -7,8 +7,8 @@ const ThankYou = () => {
     const navigate = useNavigate();
 
     return (
-        <div className="flex justify-center items-center w-full h-full p-2 sm:p-0">
-            <div className="bg-white w-full h-full sm:w-1/2 sm:h-3/4 shadow-md rounded-xl flex flex-col items-center justify-center text-center p-5">
+        <div className="flex justify-center items-center h-dvh p-2 sm:p-0">
+            <div className="bg-white sm:w-1/2 sm:h-3/4 shadow-md rounded-xl flex flex-col items-center justify-center text-center p-5">
                 <img src={thank_you_icon} alt="thank you" className="w-[300px]" />
                 <h1 className="text-primary900 font-bold text-4xl font-clashDisplay">
                     Thank you!

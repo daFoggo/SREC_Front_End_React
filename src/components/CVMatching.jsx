@@ -18,6 +18,7 @@ import PercentIcon from '@mui/icons-material/Percent';
 import PeopleIcon from '@mui/icons-material/People';
 import CandidateModal from './Modal/CandidateModal';
 import ConfirmModal from './Modal/ConfirmModal';
+import { useAlert } from '../context/AlertContext';
 
 const CVMatching = () => {
   const [rankingData, setRankingData] = useState([]);
@@ -31,6 +32,7 @@ const CVMatching = () => {
   const [selectedOption, setSelectedOption] = useState(null);
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { showAlert } = useAlert();
 
   useEffect(() => {
     if (user.sub.role === 'recruiter') {
@@ -64,11 +66,15 @@ const CVMatching = () => {
         job_level: localStorage.getItem("level"),
         candidates: candidates
       });
-      console.log('Email sent successfully:', response.data);
-      // You might want to show a success message to the user here
+      showAlert({
+        message: "Email sent to candidates successfully",
+        type: "success",
+      })
     } catch (error) {
-      console.error('Error sending email:', error);
-      // You might want to show an error message to the user here
+      showAlert({
+        message: "Failed to send email",
+        type: "error",
+      })
     } finally {
       setIsSendingEmail(false);
       setIsSingleMailModalOpen(false);
@@ -123,11 +129,10 @@ const CVMatching = () => {
   const columns = [
     { id: 'id', label: 'ID', minWidth: 50 },
     { id: 'name', label: 'Name', minWidth: 150 },
-    { id: 'age', label: "Age / Date of birth", minWidth: 100 },
-    { id: 'gmail', label: 'Gmail', minWidth: 150 },
+    { id: 'age', label: "Age / Date of birth", minWidth: 200 },
+    { id: 'gmail', label: 'Email', minWidth: 150 },
     { id: 'academic', label: 'Academic', minWidth: 200 },
-    { id: 'skills', label: 'Skills', minWidth: 200 },
-    { id: 'cv_matching', label: 'Matching score', minWidth: 50 },
+    { id: 'cv_matching', label: 'Matching score', minWidth: 200 },
     { id: 'actions', label: 'Actions', minWidth: 100 },
   ];
 
@@ -173,13 +178,7 @@ const CVMatching = () => {
           color: "#052b4c",
           width: "fit-content",
         }}>
-          <JoinInnerOutlinedIcon
-            sx={{
-              fontSize: 40,
-              marginRight: 1,
-            }}
-          />
-          <h1 className="font-bold text-3xl">CV matching</h1>
+          <h1 className="font-bold text-3xl">Candidate ranking</h1>
         </Button>
       </div>
       {isLoading ? (
@@ -267,7 +266,7 @@ const CVMatching = () => {
                         : column.id === 'gmail'
                           ? value
                           : column.id === 'cv_matching'
-                            ? value.toFixed(2)
+                            ? (value * 100).toFixed(2)
                             : typeof value === 'string'
                               ? capitalizeWords(value !== "none" ? value : 'N/A')
                               : '';
@@ -280,7 +279,7 @@ const CVMatching = () => {
                             : {}}
                         >
                           {column.id === 'actions' ? (
-                            <>
+                            <div className='flex'>
                               <Tooltip title="View CV" onClick={() => handleOpenCandidateModal(rowIndex)}>
                                 <IconButton>
                                   <VisibilityIcon sx={{ "color": "#10a1fc" }} />
@@ -294,7 +293,7 @@ const CVMatching = () => {
                                   <MailIcon sx={{ "color": "#10a1fc" }} />
                                 </IconButton>
                               </Tooltip>
-                            </>
+                            </div>
                           ) : (
                             <Typography variant="body2">
                               {formattedValue}
