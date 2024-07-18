@@ -19,13 +19,12 @@ const CodeProblem = () => {
 
   const isCodeDone = localStorage.getItem("is_code_done");
 
-  console.log(currentProblem);
   useEffect(() => {
     if (!user) {
       navigate(routes.login);
     } else {
       if (isCodeDone === "true" || redirect) {
-        navigate(routes.fina_code_assessment_score);
+        navigate(routes.final_code_assessment_score);
       } else {
         handleGetCodeAssessmentData();
       }
@@ -41,23 +40,10 @@ const CodeProblem = () => {
   const handleGetCodeAssessmentData = async () => {
     setIsLoading(true);
     try {
-      console.log('res: ', await fetch('http://127.0.0.1:5000/get-code-assessment-scores', {
-        method: 'POST',
-        body: JSON.stringify({
-            "candidate_id": "CDD117",
-            "job_level": "junior"
-        }),
-        headers: {
-            'Content-Type': 'application/json'
-        }
-      }).then(response => response.json()))
-
       const response = await axios.post(`${rootAPI}/get-code-assessment-scores`, {
         candidate_id: user.sub.id,
         job_level: user.sub.job_level,
       });
-
-      console.log(response.data);
 
       handleUpdateAssessmentData(response.data.assessment_data);
       handleUpdateProblemData(response.data.problem_data);
@@ -69,11 +55,9 @@ const CodeProblem = () => {
   };
 
   const chartValue = (currentProblem / 3) * 100;
-  console.log(problemData);
   let problemKeys = Object.keys(problemData);
   let problemKey = problemKeys[0];
   let singleProblem = problemData[problemKey];
-  console.log(problemKeys, problemKey, singleProblem);
 
   if (isLoading || !singleProblem) {
     return <PageLoadingOverlay />;

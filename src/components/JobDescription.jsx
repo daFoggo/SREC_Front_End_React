@@ -12,10 +12,13 @@ import {
 } from '@mui/material'
 import LaunchIcon from '@mui/icons-material/Launch'
 import VisibilityIcon from '@mui/icons-material/Visibility';
+import JobDescriptionModal from './Modal/JobDescriptionModal'
 
 const JobDescription = () => {
     const [jobData, setJobData] = useState([])
     const [isLoading, setIsLoading] = useState(false)
+    const [isModalOpen, setIsModalOpen] = useState(false)
+    const [viewingJob, setViewingJob] = useState(null)
     const { user } = useAuth()
     const navigate = useNavigate()
 
@@ -44,6 +47,12 @@ const JobDescription = () => {
         localStorage.setItem("level", jobData.find(job => job.id === jobId).level)
         navigate(routes.cv_matching)
     }
+
+    const handleOpenModal = (job) => {
+        setViewingJob(job)
+        setIsModalOpen(true)
+    }
+
     const columns = [
         { id: 'index', label: 'Index', minWidth: 50 },
         { id: 'title', label: 'Title', minWidth: 200 },
@@ -83,24 +92,28 @@ const JobDescription = () => {
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            {jobData.map((row, index) => (
+                            {jobData.map((row, rowIndex) => (
                                 <TableRow hover role="checkbox" tabIndex={-1} key={row.id}>
-                                    {columns.map((column, index) => {
+                                    {columns.map((column) => {
                                         if (column.id === 'index') {
-                                            return <TableCell key={index} sx={{
-                                                textAlign: "center",
-                                            }}>{index + 1}</TableCell>;
+                                            return (
+                                                <TableCell key={column.id} sx={{ textAlign: "center" }}>
+                                                    {rowIndex + 1}
+                                                </TableCell>
+                                            );
                                         }
                                         if (column.id === 'number_of_candidates') {
-                                            return <TableCell key={index} sx={{
-                                                textAlign: "center",
-                                            }}>{row.number_of_candidates}</TableCell>;
+                                            return (
+                                                <TableCell key={column.id} sx={{ textAlign: "center" }}>
+                                                    {row.number_of_candidates}
+                                                </TableCell>
+                                            );
                                         }
                                         if (column.id === 'actions') {
                                             return (
                                                 <TableCell key={column.id}>
                                                     <Tooltip title="View job description">
-                                                        <IconButton onClick={() => navigate(routes.job_detail.replace(':id', row.id))}>
+                                                        <IconButton onClick={() => handleOpenModal(row)}>
                                                             <VisibilityIcon sx={{ "color": "#10a1fc" }} />
                                                         </IconButton>
                                                     </Tooltip>
@@ -132,6 +145,14 @@ const JobDescription = () => {
                         </TableBody>
                     </Table>
                 </TableContainer>
+            )}
+
+            {viewingJob && (
+                <JobDescriptionModal
+                    isModalOpen={isModalOpen}
+                    handleCloseModal={() => setIsModalOpen(false)}
+                    jobDescriptionData={viewingJob}
+                />
             )}
         </div>
     )

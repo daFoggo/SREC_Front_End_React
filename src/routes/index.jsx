@@ -105,7 +105,7 @@ const AppRoutes = () => {
 
 
                     <Route
-                        path={routes.fina_code_assessment_score}
+                        path={routes.final_code_assessment_score}
                         element={
                             <PrivateRoute requiredRole="candidate">
                                 <FinalCodeScore />

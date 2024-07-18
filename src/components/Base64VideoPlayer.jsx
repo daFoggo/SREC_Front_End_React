@@ -41,7 +41,6 @@ const Base64VideoPlayer = ({ base64String, play }) => {
       ref={videoRef} 
       width="100%" 
       playsInline 
-      autoPlay
       style={{pointerEvents: 'none', borderRadius: '.5rem'}}
     >
       Your browser does not support the video tag.

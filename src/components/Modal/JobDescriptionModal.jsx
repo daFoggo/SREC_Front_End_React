@@ -1,4 +1,4 @@
-import React from 'react'
+import React from 'react';
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Modal from "@mui/material/Modal";
@@ -9,6 +9,13 @@ import { useMediaQuery, useTheme } from '@mui/material';
 const JobDescriptionModal = ({ isModalOpen, handleCloseModal, jobDescriptionData }) => {
     const theme = useTheme();
     const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
+
+    const cleanJobDescription = (description) => {
+        return description
+            .replace(/Show more|Show less/g, '')
+            .replace(/\s\s+/g, ' ')
+            .trim();
+    }
 
     return (
         <Modal
@@ -23,8 +30,8 @@ const JobDescriptionModal = ({ isModalOpen, handleCloseModal, jobDescriptionData
                     top: "50%",
                     left: "50%",
                     transform: "translate(-50%, -50%)",
-                    width: isSmallScreen? "90%" : "50%",
-                    height: isSmallScreen? "90%" : "auto",
+                    width: isSmallScreen ? "90%" : "50%",
+                    height: isSmallScreen ? "90%" : "auto",
                     overflowY: "auto",
                     bgcolor: "background.paper",
                     borderRadius: "0.5rem",
@@ -38,11 +45,10 @@ const JobDescriptionModal = ({ isModalOpen, handleCloseModal, jobDescriptionData
                 <h2 className="font-bold text-2xl text-primary950 mb-5 text-left pb-3 border-b-2">{jobDescriptionData.title}</h2>
 
                 <div className='flex flex-col gap-5 mt-3'>
-                    {jobDescriptionData.level ? <TextField id="level" label="Level" value={jobDescriptionData.level} multiline/> : null}
-                    {jobDescriptionData.skills ? <TextField id="skills" label="Skills" value={jobDescriptionData.skills} multiline/> : null}
-                    {jobDescriptionData.academic ? <TextField id="academic" label="Academic" value={jobDescriptionData.academic} multiline/> : null}
-                    {jobDescriptionData.major ? <TextField id="major" label="Major" value={jobDescriptionData.major} multiline/> : null}
-                    {jobDescriptionData.certificate ? <TextField id="certificate" label="Certificate" value={jobDescriptionData.certificate} multiline/> : null}
+                    {jobDescriptionData.level && <TextField id="level" label="Level" value={jobDescriptionData.level} multiline />}
+                    {jobDescriptionData.number_of_candidates && <TextField id="number_of_candidates" label="Application" value={jobDescriptionData.number_of_candidates} multiline />}
+                    {jobDescriptionData.description && <TextField id="description" label="Description" value={cleanJobDescription(jobDescriptionData.description)} multiline />}
+                    {jobDescriptionData.data_string && <TextField id="data_string" label="Skills required" value={jobDescriptionData.data_string} multiline />}
                 </div>
 
                 <div className="flex gap-3 mt-5 self-end">
@@ -58,10 +64,16 @@ const JobDescriptionModal = ({ isModalOpen, handleCloseModal, jobDescriptionData
     )
 }
 
-export default JobDescriptionModal;
-
 JobDescriptionModal.propTypes = {
     isModalOpen: PropTypes.bool,
     handleCloseModal: PropTypes.func,
-    jobDescriptions: PropTypes.object
+    jobDescriptionData: PropTypes.shape({
+        title: PropTypes.string,
+        level: PropTypes.string,
+        number_of_candidates: PropTypes.string,
+        description: PropTypes.string,
+        data_string: PropTypes.string,
+    })
 }
+
+export default JobDescriptionModal;

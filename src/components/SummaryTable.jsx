@@ -31,7 +31,8 @@ const SummaryTable = () => {
     try {
       setIsLoading(true);
       const response = await axios.post(`${rootAPI}/get-recruiter-with-candidates`, {
-        recruiter_id: user.sub.id
+        recruiter_id: user.sub.id,
+        job_id: localStorage.getItem('selected_job'),
       });
       setCandidateData(response.data);
     } catch (error) {

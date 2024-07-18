@@ -30,6 +30,7 @@ const VirtualInterview = () => {
   const [question, setQuestion] = useState(null);
   const [countdown, setCountdown] = useState(null);
   const [showQuestion, setShowQuestion] = useState(false);
+  const [playVideo, setPlayVideo] = useState(false);
 
   const isInterviewDone = localStorage.getItem("is_interview_done");
 
@@ -71,6 +72,7 @@ const VirtualInterview = () => {
       handleUpdateQuestionData(response.data.question_data);
       setQuestion(null);
       setShowQuestion(false);
+      setPlayVideo(false);
     } catch (error) {
       console.error('Error getting interview data:', error);
     } finally {
@@ -117,7 +119,6 @@ const VirtualInterview = () => {
     }
   };
   
-
   const handleAnalyzeVideo = async () => {
     setIsSubmitting(true);
     try {
@@ -160,6 +161,7 @@ const VirtualInterview = () => {
     setCountdown(countdownTime);
     setQuestion(null);
     setShowQuestion(false);
+    setPlayVideo(false);
 
     const countdownInterval = setInterval(() => {
       countdownTime -= 1;
@@ -183,8 +185,10 @@ const VirtualInterview = () => {
       handleDataAvailable
     );
     mediaRecorderRef.current.start();
-    setQuestion(getQuestion(interviewData[0].question_id).question);
+    const currentQuestionData = getQuestion(interviewData[0].question_id);
+    setQuestion(currentQuestionData.question);
     setShowQuestion(true);
+    setPlayVideo(true);
   };
 
   const handleDataAvailable = ({ data }) => {
@@ -199,6 +203,7 @@ const VirtualInterview = () => {
     setCountdown(null);
     setQuestion(null);
     setShowQuestion(false);
+    setPlayVideo(false);
     
     try {
       await handleSubmitVideo();
@@ -296,7 +301,10 @@ const VirtualInterview = () => {
 
       <div className="bg-white gap-5 h-full w-full sm:w-1/3 flex flex-col shadow-md py-10 px-5" style={{height: 'auto'}}>
         <div className=" w-full rounded-md px-32 sm:px-52">
-          <Base64VideoPlayer base64String={interviewData[0].question_id ? (getQuestion(interviewData[0]?.question_id)?.video_data) : null} />
+          <Base64VideoPlayer 
+            base64String={interviewData[0]?.question_id ? (getQuestion(interviewData[0]?.question_id)?.video_data) : null} 
+            play={playVideo}
+          />
         </div>
 
         {countdown !== null ? (
