@@ -15,6 +15,8 @@ import EastIcon from '@mui/icons-material/East';
 import WestIcon from '@mui/icons-material/West';
 import VoicePredictionCharts from "./VoicePredictionChart";
 import VideoPredictionCharts from "./VideoPredictionChart";
+import EmotionChart from "./EmotionChart";
+import PieChart from "./PieChart";
 
 const SummaryDashboard = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -104,6 +106,76 @@ const SummaryDashboard = () => {
     return <PageLoadingOverlay />;
   }
 
+  const renderAreaChartData = (payload) => {
+    const chartData = [
+      {
+        name: 'neutral',
+        data: payload.map(element => element.emotion.neutral)
+      },
+      {
+        name: 'angry',
+        data: payload.map(element => element.emotion.angry)
+      },
+      {
+        name: 'disgust',
+        data: payload.map(element => element.emotion.disgust)
+      },
+      {
+        name: 'fear',
+        data: payload.map(element => element.emotion.fear)
+      },
+      {
+        name: 'happy',
+        data: payload.map(element => element.emotion.happy)
+      },
+
+      {
+        name: 'sad',
+        data: payload.map(element => element.emotion.sad)
+      },
+      {
+        name: 'surprise',
+        data: payload.map(element => element.emotion.surprise)
+      }
+    ]
+    return chartData;
+  }
+
+  const renderPieChartData = (payload) => {
+    const chartData = [
+      {
+        name: 'angry',
+        y: payload.reduce((accumulator, current) => accumulator + current.emotion.angry, 0)
+      },
+      {
+        name: 'disgust',
+        y: payload.reduce((accumulator, current) => accumulator + current.emotion.disgust, 0)
+      },
+      {
+        name: 'fear',
+        y: payload.reduce((accumulator, current) => accumulator + current.emotion.fear, 0)
+      },
+      {
+        name: 'happy',
+        y: payload.reduce((accumulator, current) => accumulator + current.emotion.happy, 0)
+      },
+      {
+        name: 'neutral',
+        y: payload.reduce((accumulator, current) => accumulator + current.emotion.neutral, 0)
+      },
+      {
+        name: 'sad',
+        y: payload.reduce((accumulator, current) => accumulator + current.emotion.sad, 0)
+      },
+      {
+        name: 'surprise',
+        y: payload.reduce((accumulator, current) => accumulator + current.emotion.surprise, 0)
+      }
+    ]
+
+    return chartData;
+  }
+
   return (
     <div className="p-2 sm:p-10 w-full min-h-screen flex flex-col">
       <div className="mb-6">
@@ -150,7 +222,7 @@ const SummaryDashboard = () => {
             <TextField value={candidateData.level} label={"Level"}></TextField>
           </div>
         </div>
-        
+
         <div className="flex flex-col w-full lg:w-3/4 gap-6">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
             <div className="bg-white shadow-md rounded-xl p-5 flex flex-col justify-center items-center relative min-h-[200px]">
@@ -215,17 +287,18 @@ const SummaryDashboard = () => {
                 </p>
               </div>
 
-              <div>
+              {/* <div>
                 <p className="font-bold text-primary900">Voice analyze chart: </p>
                 <div className="bg-primary50 rounded-xl p-2">
                   <VoicePredictionCharts voicePrediction={virtualInterviewData && virtualInterviewData[selectedQuestion] ? JSON.parse(virtualInterviewData[selectedQuestion].prediction_data).voice_prediction : null} />
                 </div>
-              </div>
+              </div> */}
 
               <div>
                 <p className="font-bold text-primary900">Video analyze chart: </p>
                 <div className="bg-primary50 rounded-xl p-2">
-                  <VideoPredictionCharts videoPrediction={virtualInterviewData && virtualInterviewData[selectedQuestion] ? JSON.parse(virtualInterviewData[selectedQuestion].prediction_data).video_prediction : null} />
+                  <EmotionChart dataChart={renderAreaChartData(JSON.parse(virtualInterviewData[selectedQuestion].prediction_data).video_prediction)}></EmotionChart>
+                  <PieChart dataChart={renderPieChartData(JSON.parse(virtualInterviewData[selectedQuestion].prediction_data).video_prediction)}></PieChart>
                 </div>
               </div>
             </div>
