@@ -10,6 +10,7 @@ import axios from "axios";
 import ConfirmModal from "./Modal/ConfirmModal";
 import { useAuth } from "../context/AuthContext";
 import propTypes from "prop-types";
+import { set } from "react-hook-form";
 
 const languages = Object.entries(language_versions);
 
@@ -224,7 +225,6 @@ const CodeEditor = ({ problemData, onFinishSave }) => {
         }).finally(() => {
             handleCloseModal();
             handleSubmitToDatabase();
-            handleUpdateCurrentProblem(currentProblem + 1);
             setLoadingSubmit(false);
         });
     };
@@ -237,6 +237,8 @@ const CodeEditor = ({ problemData, onFinishSave }) => {
         let selected_language = language;
 
         try {
+            setLoadingSubmit(true);
+
             const response = await axios.put(`${rootAPI}/submit-code-assessment-scores`, {
                 assessment_id,
                 assessment_score,
@@ -248,83 +250,84 @@ const CodeEditor = ({ problemData, onFinishSave }) => {
         } catch (error) {
             console.error("An error occurred while submitting the code to the database:", error);
         } finally {
+            setLoadingSubmit(false);
             handleUpdateCurrentProblem(currentProblem + 1);
         }
-}
+    }
 
-return (
-    <div className="flex flex-col gap-2">
-        {/* Language Selector */}
-        <div className="flex gap-3">
-            <FormControl variant="filled">
-                <InputLabel id="language-select-label">Language</InputLabel>
-                <Select
-                    labelId="language-select-label"
-                    id="language-select"
-                    value={language}
-                    label="Language"
-                    onChange={handleChangeLanguage}
+    return (
+        <div className="flex flex-col gap-2">
+            {/* Language Selector */}
+            <div className="flex gap-3">
+                <FormControl variant="filled">
+                    <InputLabel id="language-select-label">Language</InputLabel>
+                    <Select
+                        labelId="language-select-label"
+                        id="language-select"
+                        value={language}
+                        label="Language"
+                        onChange={handleChangeLanguage}
+                    >
+                        {languages.map(([key, value]) => (
+                            <MenuItem key={key} value={key}>
+                                {key} {value}
+                            </MenuItem>
+                        ))}
+                    </Select>
+                </FormControl>
+            </div>
+
+            {/* Editor */}
+            <div className="h-[50vh] shadow-md">
+                <Editor
+                    height="100%"
+                    theme="vs-light"
+                    language={language}
+                    value={value}
+                    onChange={(v) => setValue(v)}
+                    onMount={onMount}
+                    loading={<div>Loading...</div>}
+                />
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-3">
+                <div className="sm:w-1/2">
+                    <h2 className="font-bold text-primary950 mb-1">Input</h2>
+                    <textarea
+                        value={input}
+                        onChange={handleChangeInput}
+                        className="w-full h-[30vh] p-3 rounded-md shadow-md outline-primary500 focus:shadow-primary200"
+                        placeholder="Insert your custom input here"
+                    ></textarea>
+                </div>
+
+                <div className="sm:w-1/2">
+                    <h2 className="font-bold text-primary950 mb-1">Output</h2>
+                    <textarea
+                        value={output}
+                        readOnly
+                        className={
+                            "w-full h-[30vh] p-3 rounded-md shadow-md outline-primary500 focus:shadow-primary200" +
+                            (error ? " placeholder-red-500" : "")
+                        }
+                        placeholder={error ? error : 'Click "Run code" to see the result'}
+                    ></textarea>
+                </div>
+            </div>
+
+            <div className="flex gap-5 mt-5">
+                <button
+                    className="bg-white text-primary500 font-bold py-2 px-5 rounded-md hover:bg-slate-300 hover:text-primary950 duration-300 shadow-md"
+                    onClick={runCustomCase}
                 >
-                    {languages.map(([key, value]) => (
-                        <MenuItem key={key} value={key}>
-                            {key} {value}
-                        </MenuItem>
-                    ))}
-                </Select>
-            </FormControl>
-        </div>
+                    {loadingRunCustom ? (
+                        <CircularProgress size={20} />
+                    ) : (
+                        "Run with custom input"
+                    )}
+                </button>
 
-        {/* Editor */}
-        <div className="h-[50vh] shadow-md">
-            <Editor
-                height="100%"
-                theme="vs-light"
-                language={language}
-                value={value}
-                onChange={(v) => setValue(v)}
-                onMount={onMount}
-                loading={<div>Loading...</div>}
-            />
-        </div>
-
-        <div className="flex flex-col sm:flex-row gap-3">
-            <div className="sm:w-1/2">
-                <h2 className="font-bold text-primary950 mb-1">Input</h2>
-                <textarea
-                    value={input}
-                    onChange={handleChangeInput}
-                    className="w-full h-[30vh] p-3 rounded-md shadow-md outline-primary500 focus:shadow-primary200"
-                    placeholder="Insert your custom input here"
-                ></textarea>
-            </div>
-
-            <div className="sm:w-1/2">
-                <h2 className="font-bold text-primary950 mb-1">Output</h2>
-                <textarea
-                    value={output}
-                    readOnly
-                    className={
-                        "w-full h-[30vh] p-3 rounded-md shadow-md outline-primary500 focus:shadow-primary200" +
-                        (error ? " placeholder-red-500" : "")
-                    }
-                    placeholder={error ? error : 'Click "Run code" to see the result'}
-                ></textarea>
-            </div>
-        </div>
-
-        <div className="flex gap-5 mt-5">
-            <button
-                className="bg-white text-primary500 font-bold py-2 px-5 rounded-md hover:bg-slate-300 hover:text-primary950 duration-300 shadow-md"
-                onClick={runCustomCase}
-            >
-                {loadingRunCustom ? (
-                    <CircularProgress size={20} />
-                ) : (
-                    "Run with custom input"
-                )}
-            </button>
-
-            {/* <button
+                {/* <button
                     className="bg-white text-primary500 font-bold py-2 px-5 rounded-md hover:bg-slate-300 hover:text-primary950 duration-300 shadow-md"
                     onClick={handleRunPublic}
                 >
@@ -335,29 +338,29 @@ return (
                     )}
                 </button> */}
 
-            <button
-                className="bg-primary500 text-white font-bold py-2 px-5 rounded-md hover:bg-primary600 duration-300 shadow-md shadow-blue-300"
-                onClick={handleOpenModal}
-            >
-                Submit
-            </button>
+                <button
+                    className="bg-primary500 text-white font-bold py-2 px-5 rounded-md hover:bg-primary600 duration-300 shadow-md shadow-blue-300"
+                    onClick={handleOpenModal}
+                >
+                    Submit
+                </button>
+            </div>
+
+            {/* For test case results */}
+            <div className="flex fles-col gap-3">
+
+            </div>
+
+            <ConfirmModal
+                isModalOpen={isModalOpen}
+                handleCloseModal={handleCloseModal}
+                modalTitle={"Are you sure?"}
+                modalDescription={"After submit, you will be redirected to another problem. If this is the last problem. You will be redirected to the next round"}
+                handleRunSubmit={handleRunSubmit}
+                loadingRunSubmit={loadingRunSubmit}
+            />
         </div>
-
-        {/* For test case results */}
-        <div className="flex fles-col gap-3">
-
-        </div>
-
-        <ConfirmModal 
-        isModalOpen={isModalOpen} 
-        handleCloseModal={handleCloseModal} 
-        modalTitle={"Are you sure?"} 
-        modalDescription={"After submit, you will be redirected to another problem. If this is the last problem. You will be redirected to the next round"} 
-        handleRunSubmit={handleRunSubmit} 
-        loadingRunSubmit={loadingRunSubmit} 
-        />
-    </div>
-);
+    );
 };
 
 export default CodeEditor;

@@ -17,11 +17,14 @@ const CodeProblem = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
 
+  const isCodeDone = localStorage.getItem("is_code_done");
+
+  console.log(currentProblem);
   useEffect(() => {
     if (!user) {
-      navigate(routes.login_candidate);
+      navigate(routes.login);
     } else {
-      if (currentProblem === 4 && redirect) {
+      if (isCodeDone === "true" || redirect) {
         navigate(routes.fina_code_assessment_score);
       } else {
         handleGetCodeAssessmentData();
@@ -38,13 +41,25 @@ const CodeProblem = () => {
   const handleGetCodeAssessmentData = async () => {
     setIsLoading(true);
     try {
+      console.log('res: ', await fetch('http://127.0.0.1:5000/get-code-assessment-scores', {
+        method: 'POST',
+        body: JSON.stringify({
+            "candidate_id": "CDD117",
+            "job_level": "junior"
+        }),
+        headers: {
+            'Content-Type': 'application/json'
+        }
+      }).then(response => response.json()))
+
       const response = await axios.post(`${rootAPI}/get-code-assessment-scores`, {
         candidate_id: user.sub.id,
         job_level: user.sub.job_level,
       });
 
+      console.log(response.data);
+
       handleUpdateAssessmentData(response.data.assessment_data);
-      handleUpdateCurrentProblem(response.data.current_problem_index);
       handleUpdateProblemData(response.data.problem_data);
     } catch (error) {
       console.error(error);
@@ -54,10 +69,11 @@ const CodeProblem = () => {
   };
 
   const chartValue = (currentProblem / 3) * 100;
-
+  console.log(problemData);
   let problemKeys = Object.keys(problemData);
   let problemKey = problemKeys[0];
   let singleProblem = problemData[problemKey];
+  console.log(problemKeys, problemKey, singleProblem);
 
   if (isLoading || !singleProblem) {
     return <PageLoadingOverlay />;
@@ -129,8 +145,8 @@ const CodeProblem = () => {
 
         <div className="w-full h-[100vh] sm:w-3/5 flex flex-col text-left gap-5">
           <CodeEditor problemData={singleProblem} onFinishSave={() => {
-            if(currentProblem+1===4) {
-              localStorage.setItem("is_code_assessment_done", true);
+            if( currentProblem+1===4)  {
+              localStorage.setItem("is_code_done", true);
               setRedirect(true);
             }
           }}/>

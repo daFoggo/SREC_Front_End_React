@@ -1,6 +1,5 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import AssessmentIcon from "@mui/icons-material/Assessment";
@@ -14,167 +13,108 @@ import CodeIcon from '@mui/icons-material/Code';
 import EastIcon from '@mui/icons-material/East';
 import WestIcon from '@mui/icons-material/West';
 import VoicePredictionCharts from "./VoicePredictionChart";
-import VideoPredictionCharts from "./VideoPredictionChart";
 import EmotionChart from "./EmotionChart";
 import PieChart from "./PieChart";
 
 const SummaryDashboard = () => {
   const [isLoading, setIsLoading] = useState(true);
   const { user } = useAuth();
-  const [candidateData, setCandidateData] = useState([]);
+  const [candidateData, setCandidateData] = useState({});
   const [assessmentData, setAssessmentData] = useState([]);
-  const [matchingScoreData, setMatchingScoreData] = useState();
+  const [matchingScoreData, setMatchingScoreData] = useState(null);
   const [virtualInterviewData, setVirtualInterviewData] = useState([]);
   const [selectedQuestion, setSelectedQuestion] = useState(0);
-  const [finalScoreData, setFinalScoreData] = useState();
+  const [finalScoreData, setFinalScoreData] = useState(null);
+  const [error, setError] = useState(null);
 
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (user.sub.role === "recruiter") {
-      handleGetCVMatchingScore();
-      handleGetFinalCodeScore();
-      handleGetVirtualInterviewScore();
+    if (user?.sub?.role === "recruiter") {
+      Promise.all([
+        handleGetCVMatchingScore(),
+        handleGetFinalCodeScore(),
+        handleGetVirtualInterviewScore()
+      ]).then(() => setIsLoading(false))
+        .catch(err => {
+          setError("An error occurred while fetching data. Please try again.");
+          setIsLoading(false);
+        });
     } else {
       navigate(routes.forbidden);
     }
   }, [user, selectedQuestion]);
 
   const handleGetCVMatchingScore = async () => {
-    setIsLoading(true);
     try {
       const response = await axios.post(`${rootAPI}/get-summary-cv-matching`, {
         candidate_id: localStorage.getItem('selected_candidate_id'),
-        job_id: localStorage.getItem('job_id')
+        job_id: localStorage.getItem('selected_job')
       });
-      setMatchingScoreData(response.data.matching_score.matching_score);
-      setCandidateData(response.data.candidate_data);
+      setMatchingScoreData(response.data.matching_score?.matching_score || null);
+      setCandidateData(response.data.candidate_data || {});
     } catch (error) {
-      console.error(error);
-    } finally {
-      setIsLoading(false);
+      console.error("Error fetching CV matching score:", error);
     }
   };
 
   const handleGetFinalCodeScore = async () => {
-    setIsLoading(true);
     try {
       const response = await axios.post(`${rootAPI}/get-final-code-score`, {
         candidate_id: localStorage.getItem('selected_candidate_id')
       });
-      setFinalScoreData(response.data.final_score);
-      setAssessmentData(response.data.assessment_data);
+      setFinalScoreData(response.data.final_score || null);
+      setAssessmentData(response.data.assessment_data || []);
     } catch (error) {
-      console.error(error);
-    } finally {
-      setIsLoading(false);
+      console.error("Error fetching final code score:", error);
+      setFinalScoreData(null);
+      setAssessmentData([]);
     }
   };
 
   const handleGetVirtualInterviewScore = async () => {
-    setIsLoading(true);
     try {
       const response = await axios.post(`${rootAPI}/get-summary-virtual-interview`, {
         candidate_id: localStorage.getItem('selected_candidate_id')
       });
-      setVirtualInterviewData(response.data);
+      setVirtualInterviewData(response.data || []);
     } catch (error) {
-      console.error(error);
-    } finally {
-      setIsLoading(false);
+      console.error("Error fetching virtual interview score:", error);
+      setVirtualInterviewData([]);
     }
   };
 
   const handleUpdateSelectedQuestion = (direction) => {
-    switch (direction) {
-      case "next":
-        if (selectedQuestion < virtualInterviewData.length - 1) {
-          setSelectedQuestion(selectedQuestion + 1);
-        }
-        break;
-      case "prev":
-        if (selectedQuestion > 0) {
-          setSelectedQuestion(selectedQuestion - 1);
-        }
-        break;
-      default:
-        break;
-    }
+    setSelectedQuestion(prev => {
+      if (direction === "next" && prev < virtualInterviewData.length - 1) {
+        return prev + 1;
+      } else if (direction === "prev" && prev > 0) {
+        return prev - 1;
+      }
+      return prev;
+    });
   };
 
-  if (isLoading) {
-    return <PageLoadingOverlay />;
-  }
-
   const renderAreaChartData = (payload) => {
-    const chartData = [
-      {
-        name: 'neutral',
-        data: payload.map(element => element.emotion.neutral)
-      },
-      {
-        name: 'angry',
-        data: payload.map(element => element.emotion.angry)
-      },
-      {
-        name: 'disgust',
-        data: payload.map(element => element.emotion.disgust)
-      },
-      {
-        name: 'fear',
-        data: payload.map(element => element.emotion.fear)
-      },
-      {
-        name: 'happy',
-        data: payload.map(element => element.emotion.happy)
-      },
-
-      {
-        name: 'sad',
-        data: payload.map(element => element.emotion.sad)
-      },
-      {
-        name: 'surprise',
-        data: payload.map(element => element.emotion.surprise)
-      }
-    ]
-    return chartData;
-  }
+    if (!payload) return [];
+    const emotions = ['neutral', 'angry', 'disgust', 'fear', 'happy', 'sad', 'surprise'];
+    return emotions.map(emotion => ({
+      name: emotion,
+      data: payload.map(element => element.emotion[emotion])
+    }));
+  };
 
   const renderPieChartData = (payload) => {
-    const chartData = [
-      {
-        name: 'angry',
-        y: payload.reduce((accumulator, current) => accumulator + current.emotion.angry, 0)
-      },
-      {
-        name: 'disgust',
-        y: payload.reduce((accumulator, current) => accumulator + current.emotion.disgust, 0)
-      },
-      {
-        name: 'fear',
-        y: payload.reduce((accumulator, current) => accumulator + current.emotion.fear, 0)
-      },
-      {
-        name: 'happy',
-        y: payload.reduce((accumulator, current) => accumulator + current.emotion.happy, 0)
-      },
-      {
-        name: 'neutral',
-        y: payload.reduce((accumulator, current) => accumulator + current.emotion.neutral, 0)
-      },
-      {
-        name: 'sad',
-        y: payload.reduce((accumulator, current) => accumulator + current.emotion.sad, 0)
-      },
-      {
-        name: 'surprise',
-        y: payload.reduce((accumulator, current) => accumulator + current.emotion.surprise, 0)
-      }
-    ]
+    if (!payload) return [];
+    const emotions = ['angry', 'disgust', 'fear', 'happy', 'neutral', 'sad', 'surprise'];
+    return emotions.map(emotion => ({
+      name: emotion,
+      y: payload.reduce((acc, cur) => acc + cur.emotion[emotion], 0)
+    }));
+  };
 
-    return chartData;
-  }
+  if (isLoading) return <PageLoadingOverlay />;
+  if (error) return <div className="text-red-500">{error}</div>;
 
   return (
     <div className="p-2 sm:p-10 w-full min-h-screen flex flex-col">
@@ -194,32 +134,22 @@ const SummaryDashboard = () => {
               color: "white",
             },
           }}
-          onClick={() => {
-            navigate(routes.summary_table);
-          }}
+          onClick={() => navigate(routes.summary_table)}
         >
           <ArrowBackIcon />
         </Button>
-        <Button variant="text" sx={{
-          color: "#052b4c",
-          width: "fit-content",
-        }}>
-          <AssessmentIcon
-            sx={{
-              fontSize: 40,
-              marginRight: 2,
-            }}
-          />
+        <Button variant="text" sx={{ color: "#052b4c", width: "fit-content" }}>
+          <AssessmentIcon sx={{ fontSize: 40, marginRight: 2 }} />
           <h1 className="font-bold text-3xl">Summary report</h1>
         </Button>
       </div>
       <div className="flex flex-col lg:flex-row justify-between w-full gap-6 flex-grow">
         <div className="bg-white shadow-md rounded-xl w-full lg:w-1/4 p-5 mb-6 lg:mb-0">
-          <h1 className="mb-5 text-bold text-2xl text-primary950 font-bold">{candidateData.full_name}</h1>
+          <h1 className="mb-5 text-bold text-2xl text-primary950 font-bold">{candidateData.full_name || 'N/A'}</h1>
           <div className="flex flex-col gap-6">
-            <TextField value={candidateData.candidate_id} label={"Candidate ID"}></TextField>
-            <TextField value={candidateData.email} label={"Email"}></TextField>
-            <TextField value={candidateData.level} label={"Level"}></TextField>
+            <TextField value={candidateData.candidate_id || ''} label="Candidate ID" />
+            <TextField value={candidateData.email || ''} label="Email" />
+            <TextField value={candidateData.level || ''} label="Level" />
           </div>
         </div>
 
@@ -227,27 +157,23 @@ const SummaryDashboard = () => {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
             <div className="bg-white shadow-md rounded-xl p-5 flex flex-col justify-center items-center relative min-h-[200px]">
               <p className="font-bold text-xl text-primary950 absolute top-3 left-3">CV Matching score</p>
-              <p className="font-bold text-3xl text-primary500">{matchingScoreData ? matchingScoreData.toFixed(2) : 'N/A'}</p>
+              <p className="font-bold text-3xl text-primary500">
+                {matchingScoreData !== null ? matchingScoreData.toFixed(2) : 'N/A'}
+              </p>
               <span className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center opacity-25">
-                <JoinInnerIcon sx={{
-                  fontSize: 200,
-                  color: "#b7e2ff",
-                }} />
+                <JoinInnerIcon sx={{ fontSize: 200, color: "#b7e2ff" }} />
               </span>
             </div>
             <div className="bg-white shadow-md rounded-xl p-5 flex flex-col justify-center items-center relative min-h-[200px]">
               <p className="font-bold text-xl text-primary950 absolute top-3 left-3">Code assessment score</p>
-              <p className="font-bold text-3xl text-primary500">{finalScoreData} / 3</p>
+              <p className="font-bold text-3xl text-primary500">{finalScoreData !== null ? `${finalScoreData} / 3` : 'N/A'}</p>
               <span className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center opacity-25">
-                <CodeIcon sx={{
-                  fontSize: 200,
-                  color: "#b7e2ff",
-                }} />
+                <CodeIcon sx={{ fontSize: 200, color: "#b7e2ff" }} />
               </span>
             </div>
             <div className="bg-white shadow-md rounded-xl p-5 flex flex-col justify-center items-center relative min-h-[200px]">
               <p className="font-bold text-xl text-primary950 absolute top-3 left-3">Personality Trait</p>
-
+              {/* Add personality trait content here */}
             </div>
           </div>
           <div className="flex flex-col gap-3 bg-white shadow-md rounded-xl p-5">
@@ -256,52 +182,39 @@ const SummaryDashboard = () => {
                 <h1 className="font-bold text-xl text-primary950">Virtual Interview Score - Question {selectedQuestion + 1} </h1>
               </div>
               <div>
-                <Button
-                  variant="text"
-                  onClick={() => handleUpdateSelectedQuestion("prev")}
-                >
-                  <WestIcon sx={{
-                    fontSize: 25,
-                    color: "#052b4c",
-                  }} />
+                <Button variant="text" onClick={() => handleUpdateSelectedQuestion("prev")}>
+                  <WestIcon sx={{ fontSize: 25, color: "#052b4c" }} />
                 </Button>
-                <Button
-                  variant="text"
-                  onClick={() => handleUpdateSelectedQuestion("next")}
-                >
-                  <EastIcon sx={{
-                    fontSize: 25,
-                    color: "#052b4c",
-                  }} />
+                <Button variant="text" onClick={() => handleUpdateSelectedQuestion("next")}>
+                  <EastIcon sx={{ fontSize: 25, color: "#052b4c" }} />
                 </Button>
               </div>
             </div>
-            <div className="flex flex-col gap-5">
-              <div>
-                <p className="font-bold text-primary950">
-                  Answer matching score: {virtualInterviewData && virtualInterviewData[selectedQuestion] ? virtualInterviewData[selectedQuestion].answer_matching_data.toFixed(2) : 'N/A'}
-                </p>
-
-                <p className="font-bold text-primary950">
-                  Pronunciation score: {virtualInterviewData && virtualInterviewData[selectedQuestion] ? JSON.parse(virtualInterviewData[selectedQuestion].prediction_data).voice_prediction.pronunciation_score : 'N/A'}
-                </p>
-              </div>
-
-              {/* <div>
-                <p className="font-bold text-primary900">Voice analyze chart: </p>
-                <div className="bg-primary50 rounded-xl p-2">
-                  <VoicePredictionCharts voicePrediction={virtualInterviewData && virtualInterviewData[selectedQuestion] ? JSON.parse(virtualInterviewData[selectedQuestion].prediction_data).voice_prediction : null} />
+            {virtualInterviewData[selectedQuestion] && (
+              <div className="flex flex-col gap-5">
+                <div>
+                  <p className="font-bold text-primary950">
+                    Answer matching score: {virtualInterviewData[selectedQuestion].answer_matching_data?.toFixed(2) ?? 'N/A'}
+                  </p>
+                  <p className="font-bold text-primary950">
+                    Pronunciation score: {
+                      JSON.parse(virtualInterviewData[selectedQuestion].prediction_data || '{}')?.voice_prediction?.pronunciation_score ?? 'N/A'
+                    }
+                  </p>
                 </div>
-              </div> */}
-
-              <div>
-                <p className="font-bold text-primary900">Video analyze chart: </p>
-                <div className="bg-primary50 rounded-xl p-2">
-                  <EmotionChart dataChart={renderAreaChartData(JSON.parse(virtualInterviewData[selectedQuestion].prediction_data).video_prediction)}></EmotionChart>
-                  <PieChart dataChart={renderPieChartData(JSON.parse(virtualInterviewData[selectedQuestion].prediction_data).video_prediction)}></PieChart>
+                <div>
+                  <p className="font-bold text-primary900">Video analyze chart: </p>
+                  <div className="bg-primary50 rounded-xl p-2">
+                    <EmotionChart 
+                      dataChart={renderAreaChartData(JSON.parse(virtualInterviewData[selectedQuestion].prediction_data || '{}').video_prediction)} 
+                    />
+                    <PieChart 
+                      dataChart={renderPieChartData(JSON.parse(virtualInterviewData[selectedQuestion].prediction_data || '{}').video_prediction)} 
+                    />
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
       </div>

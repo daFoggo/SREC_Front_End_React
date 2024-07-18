@@ -19,7 +19,7 @@ export const AuthProvider = ({ children }) => {
         setToken(null);
         setUser(null);
         setRole(null);
-        localStorage.removeItem("token");
+        localStorage.clear();
     }
 
     const saveTokenAndUserData = (userToken) => {

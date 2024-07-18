@@ -30,7 +30,8 @@ const VirtualInterview = () => {
   const [question, setQuestion] = useState(null);
   const [countdown, setCountdown] = useState(null);
   const [showQuestion, setShowQuestion] = useState(false);
-  const [isInterviewFinished, setIsInterviewFinished] = useState(false);
+
+  const isInterviewDone = localStorage.getItem("is_interview_done");
 
   const navigate = useNavigate();
   const videoConstraints = {
@@ -46,10 +47,11 @@ const VirtualInterview = () => {
   }, [capturing, recordedChunks]);
 
   useEffect(() => {
-    if (!user) {
+    if (!user || isInterviewDone) {
       navigate(routes.login_candidate);
     } else {
       if (currentQuestion === 5) {
+        localStorage.setItem("is_interview_done", true);
         navigate(routes.thank_you);
       } else {
         handleGetVirtualInterviewData();
