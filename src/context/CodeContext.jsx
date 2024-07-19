@@ -23,7 +23,7 @@ export const CodeProvider = ({ children }) => {
 
     const handleUpdateProblemData = (data) => {
         setProblemData(data);
-    };
+    }; 
     
 
     return (
