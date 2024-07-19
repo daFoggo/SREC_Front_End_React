@@ -21,18 +21,38 @@ const CodeEditor = ({ problemData, onFinishSave }) => {
     const [input, setInput] = useState("");
     const [output, setOutput] = useState("");
     const [totalPoint, setTotalPoint] = useState(0);
+    const [isLoading, setIsLoading] = useState(false);
     const [loadingRunCustom, setLoadingRunCustom] = useState(false);
     const [loadingRunPublic, setLoadingRunPublic] = useState(false);
     const [loadingRunSubmit, setLoadingSubmit] = useState(false);
     const [error, setError] = useState("");
+    const [assessmentData, setAssessmentData] = useState({});
 
-    const { assessmentData, currentProblem, handleUpdateCurrentProblem } = useCode();
+    const { currentProblem, handleUpdateCurrentProblem } = useCode();
     const { user } = useAuth();
     const editorRef = useRef();
 
     useEffect(() => {
+        handleGetCodeAssessmentData()
         setValue(code_snippets[language]);
-    }, [currentProblem, assessmentData]);
+    }, [currentProblem]);
+
+
+    const handleGetCodeAssessmentData = async () => {
+        setIsLoading(true);
+        try {
+          const response = await axios.post(`${rootAPI}/get-code-assessment-scores`, {
+            candidate_id: user.sub.id,
+            job_level: user.sub.job_level,
+          });
+    
+          setAssessmentData(response.data.assessment_data)
+        } catch (error) {
+          console.error(error);
+        } finally {
+          setIsLoading(false);
+        }
+      };
 
 
     const handleSetTotalPoint = (point) => {

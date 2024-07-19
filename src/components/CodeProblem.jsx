@@ -23,7 +23,7 @@ const CodeProblem = () => {
     if (!user) {
       navigate(routes.login);
     } else {
-      if (isCodeDone === "true" || redirect) {
+      if (isCodeDone === "true" || redirect || currentProblem === 4) {
         navigate(routes.final_code_assessment_score);
       } else {
         handleGetCodeAssessmentData();
@@ -36,6 +36,8 @@ const CodeProblem = () => {
       setIsLoading(false);
     }
   }, [assessmentData, problemData, currentProblem]);
+
+  console.log(currentProblem)
 
   const handleGetCodeAssessmentData = async () => {
     setIsLoading(true);
@@ -130,7 +132,7 @@ const CodeProblem = () => {
 
         <div className="w-full h-[100vh] sm:w-3/5 flex flex-col text-left gap-5">
           <CodeEditor problemData={singleProblem} onFinishSave={() => {
-            if( currentProblem+1===4)  {
+            if( currentProblem===4)  {
               localStorage.setItem("is_code_done", true);
               setRedirect(true);
             }
