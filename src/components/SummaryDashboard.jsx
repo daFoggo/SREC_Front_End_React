@@ -119,14 +119,14 @@ const SummaryDashboard = () => {
     }));
   };
 
-  // const renderPieChartData = (payload) => {
-  //   if (!payload) return [];
-  //   const emotions = ['angry', 'disgust', 'fear', 'happy', 'neutral', 'sad', 'surprise'];
-  //   return emotions.map(emotion => ({
-  //     name: emotion,
-  //     y: payload.reduce((acc, cur) => acc + cur.emotion[emotion], 0)
-  //   }));
-  // };
+  const renderPieChartData = (payload) => {
+    if (!payload) return [];
+    const emotions = ['angry', 'disgust', 'fear', 'happy', 'neutral', 'sad', 'surprise'];
+    return emotions.map(emotion => ({
+      name: emotion,
+      y: payload.reduce((acc, cur) => acc + cur.emotion[emotion], 0)
+    }));
+  };
 
   if (isLoading) return <PageLoadingOverlay />;
   if (error) return <div className="text-red-500">{error}</div>;
@@ -229,9 +229,9 @@ const SummaryDashboard = () => {
                   </div>
 
                   <div className="rounded-xl p-2">
-                    {/* <PieChart
-                      dataChart={renderPieChartData(JSON.parse(virtualInterviewData[selectedQuestion].prediction_data || '{}').voice_prediction)}
-                    /> */}
+                    <PieChart
+                      dataChart={renderPieChartData(JSON.parse(virtualInterviewData[selectedQuestion].prediction_data || '{}').video_prediction)}
+                    />
                   </div>
                 </div>
 

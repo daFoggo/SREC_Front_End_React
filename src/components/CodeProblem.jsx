@@ -104,7 +104,7 @@ const CodeProblem = () => {
       </div>
 
       <div className="h-full m-1 sm:m-5 flex flex-col sm:flex-row justify-between gap-5">
-        <div className="w-full sm:w-2/5 h-[100vh] overflow-y-scroll bg-white rounded-md p-3 shadow-md">
+        <div className="w-full sm:w-2/5 bg-white rounded-md p-3 shadow-md">
           <p>Difficulty: {difficulty}</p>
           <p>Time limit: {timeLimit}</p>
           <p>Memory limit: {memoryLimit}</p>

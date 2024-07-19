@@ -32,7 +32,8 @@ const CodeEditor = ({ problemData, onFinishSave }) => {
 
     useEffect(() => {
         setValue(code_snippets[language]);
-    }, [currentProblem]);
+    }, [currentProblem, assessmentData]);
+
 
     const handleSetTotalPoint = (point) => {
         setTotalPoint((prev) => prev + point);
@@ -214,8 +215,13 @@ const CodeEditor = ({ problemData, onFinishSave }) => {
     // };
 
     const handleRunSubmit = async () => {
+        if (!assessmentData || assessmentData.length === 0) {
+            console.error("Assessment data is not available");
+            return;
+        }
+    
         setLoadingSubmit(true);
-
+    
         runTestCase(
             problemData.gen_input,
             problemData.gen_output,
@@ -230,15 +236,20 @@ const CodeEditor = ({ problemData, onFinishSave }) => {
     };
 
     const handleSubmitToDatabase = async () => {
+        if (!assessmentData || assessmentData.length === 0) {
+            console.error("Assessment data is not available");
+            return;
+        }
+    
         let assessment_id = assessmentData[0].assessment_id;
         let assessment_score = totalPoint;
         let status = true;
         let code_solution = editorRef.current.getValue();
         let selected_language = language;
-
+    
         try {
             setLoadingSubmit(true);
-
+    
             const response = await axios.put(`${rootAPI}/submit-code-assessment-scores`, {
                 assessment_id,
                 assessment_score,
@@ -253,6 +264,10 @@ const CodeEditor = ({ problemData, onFinishSave }) => {
             setLoadingSubmit(false);
             handleUpdateCurrentProblem(currentProblem + 1);
         }
+    }
+
+    if (!assessmentData || assessmentData.length === 0) {
+        return <div>Loading...</div>;
     }
 
     return (
@@ -341,6 +356,7 @@ const CodeEditor = ({ problemData, onFinishSave }) => {
                 <button
                     className="bg-primary500 text-white font-bold py-2 px-5 rounded-md hover:bg-primary600 duration-300 shadow-md shadow-blue-300"
                     onClick={handleOpenModal}
+                    disabled={!assessmentData || assessmentData.length === 0}
                 >
                     Submit
                 </button>

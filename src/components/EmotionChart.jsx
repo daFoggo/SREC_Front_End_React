@@ -1,12 +1,8 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
 
 const EmotionChart = ({ dataChart }) => {
-  useEffect(() => {
-    console.log("EmotionChart rendered with dataChart:", dataChart);
-  }, [dataChart]);
-
   if (!Array.isArray(dataChart) || dataChart.length === 0) {
     console.log("dataChart is not a valid array or is empty");
     return <div>No data available for emotion chart</div>;
@@ -17,7 +13,7 @@ const EmotionChart = ({ dataChart }) => {
     data: item.data.map(value => parseFloat(value) || 0)  
   }));
 
-  console.log("Processed series data:", series);
+  const colors = ['#10a1fc', '#00C4FF', '#FFE7A0', '#F4D160', '#FFE7A0', '#FEB941'];
 
   const options = {
     chart: {
@@ -38,9 +34,8 @@ const EmotionChart = ({ dataChart }) => {
       categories: series[0]?.data.map((_, index) => index.toString()) || [],
       labels: {
         formatter: function () {
-          // Hiển thị chỉ một điểm trên trục X
           const labelIndex = Math.round(this.value);
-          return labelIndex % 2 === 0 ? this.value : ''; // Chỉ hiển thị một số điểm
+          return labelIndex % 2 === 0 ? this.value : ''; 
         }
       }
     },
@@ -59,7 +54,6 @@ const EmotionChart = ({ dataChart }) => {
     plotOptions: {
       area: {
         stacking: 'percent',
-        lineColor: '#ffffff',
         lineWidth: 1,
         marker: {
           lineWidth: 1,
@@ -67,14 +61,14 @@ const EmotionChart = ({ dataChart }) => {
         }
       }
     },
+    colors: colors, 
     series: series
   };
 
-  console.log("Highcharts options:", options);
-
   return (
-    <div style={{width: '100%', height: '400px'}}>
+    <div style={{width: '100%'}}>
       <HighchartsReact
+        containerProps={{ style: { height: "550px" } }}
         highcharts={Highcharts}
         options={options}
       />
